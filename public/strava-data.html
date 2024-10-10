@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Löparstatistik</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.heat/dist/leaflet-heat.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+    <style>
+    #map {
+        height: 500px; /* Set a fixed height for the map */
+        width: 100%; /* Make the map take the full width of its container */
+        margin-top: 20px; /* Add some space above the map */
+        border: 2px solid #007bff; /* Optional: Add a border for better visibility */
+        border-radius: 5px; /* Optional: Rounded corners */
+        overflow: hidden; /* Prevent overflow */
+    }
+    </style>
+</head>
+<body>
+    <header class="bg-primary text-white text-center py-5">
+        <h1>Löparstatistik</h1>
+        <p>Här kan du se dina aktiviteter för den aktuella månaden.</p>
+    </header>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">IS Lärkan</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a class="nav-link" href="index.html">Hem</a></li>
+                <li class="nav-item"><a class="nav-link" href="about.html">Om oss</a></li>
+                <li class="nav-item"><a class="nav-link" href="contact.html">Kontakt</a></li>
+                <li class="nav-item"><a class="nav-link" href="strava-data.html">Löparstatistik (Kräver inloggning)</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container my-5">
+        <h2>Dina aktiviteter för den aktuella månaden</h2>
+        <div id="activity-summary">
+            <!-- Aggregated activities will be loaded here -->
+        </div>
+
+        <h2 class="mt-5">Heatmap över dina aktiviteter</h2>
+        <div id="map"></div> <!-- Heatmap will be displayed here -->
+
+        <h2 class="mt-5">Alla Lärkors aktiviteter</h2>
+        <div id="club-activity-summary">
+            <!-- Aggregated club activities will be loaded here -->
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+        // Extend Leaflet's Canvas to set the willReadFrequently attribute
+        L.Canvas = L.Canvas.extend({
+            _initPath: function (layer) {
+                // Call the original method
+                L.Canvas.prototype._initPath.call(this, layer);
+
+                // Set the willReadFrequently attribute
+                if (this._container instanceof HTMLCanvasElement) {
+                    this._container.willReadFrequently = true;
+                }
+            }
+        });
+
+        async function fetchMonthlyActivities()
+         {
+            const response = await fetch('/monthly-activities'); // Fetch monthly activities from the server
+
+            if (response.ok) {
+                const data = await response.json();
+                displayActivitySummary(data.aggregatedActivities);
+                displayHeatmap(data.heatmapData);
+            } else {
+                const errorData = await response.json();
+                console.error('Failed to fetch monthly activities:', errorData);
+                document.getElementById('activity-summary').innerHTML = '<p>Inga aktiviteter funna för den aktuella månaden.</p>';
+            }
+        }
+
+        function displayActivitySummary(activities) {
+            const summaryDiv = document.getElementById('activity-summary');
+            if (Object.keys(activities).length === 0) {
+                summaryDiv.innerHTML = '<p>Inga aktiviteter funna för den aktuella månaden.</p>';
+                return;
+            }
+
+            let summaryHTML = '<ul class="list-group">';
+
+            for (const [type, data] of Object.entries(activities)) {
+                summaryHTML += `
+                    <li class="list-group-item">
+                        <h5>${type}</h5>
+                        <p>Antal aktiviteter: ${data.count}</p>
+                        <p>Total distans: ${(data.totalDistance / 1000).toFixed(2)} km</p>
+                        <p>Total tid: ${data.totalTime} sekunder</p>
+                    </li>
+                `;
+            }
+
+            summaryHTML += '</ul>';
+            summaryDiv.innerHTML = summaryHTML;
+        }
+
+        function displayHeatmap(heatmapData) {
+            const map = L.map('map', {
+                renderer: L.canvas() // Use the custom canvas renderer
+            }).setView([59.3293, 18.0686], 10); // Set initial view to a central location (e.g., Stockholm)
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            // Create a heatmap layer
+            const heat = L.heatLayer(heatmapData, { radius: 20, blur: 10 }).addTo(map);
+
+            // Fit the map to the heatmap data
+            if (heatmapData.length > 0) {
+                const latLngs = heatmapData.map(point => [point[0], point[1]]);
+                const bounds = L.latLngBounds(latLngs);
+                map.fitBounds(bounds);
+            } else {
+                // If no data, set a default view
+                map.setView([59.3293, 18.0686], 10); // Default to Stockholm
+            }
+        }
+
+        async function fetchClubActivities() {
+            const response = await fetch('/club-activities'); // Fetch club activities from the server
+
+            if (response.ok) {
+                const aggregatedActivities = await response.json();
+                displayAggregatedClubActivitySummary(aggregatedActivities);
+            } else {
+                const errorData = await response.json();
+                console.error('Failed to fetch club activities:', errorData);
+                document.getElementById('club-activity-summary').innerHTML = '<p>Inga klubbaktiviteter funna.</p>';
+            }
+        }
+
+        function displayAggregatedClubActivitySummary(aggregatedActivities) {
+            const summaryDiv = document.getElementById('club-activity-summary');
+            if (Object.keys(aggregatedActivities).length === 0) {
+                summaryDiv.innerHTML = '<p>Inga klubbaktiviteter funna.</p>';
+                return;
+            }
+
+            let summaryHTML = '<table class="table table-bordered"><thead><tr><th>Medlem</th><th>Typ</th><th>Antal Aktiviteter</th><th>Total Distans (km)</th><th>Total Tid (sekunder)</th></tr></thead><tbody>';
+
+            for (const memberId in aggregatedActivities) {
+                const member = aggregatedActivities[memberId];
+                for (const activityType in member.activities) {
+                    const activity = member.activities[activityType];
+                    summaryHTML += `
+                        <tr>
+                            <td>${member.name}</td>
+                            <td>${activityType}</td>
+                            <td>${activity.count}</td>
+                            <td>${(activity.totalDistance / 1000).toFixed(2)}</td>
+                            <td>${activity.totalTime}</td>
+                        </tr>
+                    `;
+                }
+            }
+
+            summaryHTML += '</tbody></table>';
+            summaryDiv.innerHTML = summaryHTML;
+        }
+
+        // Call fetchMonthlyActivities when the page loads
+        $(document).ready(function() {
+            fetchMonthlyActivities();
+            fetchClubActivities();
+        }); 
+    </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IS Lärkan</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="bg-primary text-white text-center py-5">
+        <h1>Välkommen till IS Lärkan</h1>
+        <p>Delta i våra veckoliga löpningar och evenemang!</p>
+    </header>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">IS Lärkan</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a class="nav-link" href="index.html">Hem</a></li>
+                <li class="nav-item"><a class="nav-link" href="about.html">Om oss</a></li>
+                <li class="nav-item"><a class="nav-link" href="contact.html">Kontakt</a></li>
+                <li class="nav-item"><a class="nav-link" href="strava-data.html">Löparstatistik (Kräver inloggning)</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container my-5">
+        <section>
+            <h2>Kommande Evenemang</h2>
+            <p>Kolla in våra kommande löpningsevenemang och gå med oss på Strava!</p>
+            <!-- Lägg till evenemangsdetaljer här -->
+        </section>
+
+        <section>
+            <h2>Logga in med Strava</h2>
+            <button onclick="window.location.href='/auth/strava'" class="btn btn-primary">Logga in med Strava</button>
+        </section>
+
+        <section>
+            <h2>Senaste Löpningar</h2>
+            <div id="latest-runs">
+                <!-- Latest runs will be loaded here -->
+            </div>
+        </section>
+
+        <section>
+            <h2>Strava Club Events</h2>
+            <div id="strava-events">
+                <!-- Strava events will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="js/scripts.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("#footer-placeholder").load("footer.html");
+            fetchLatestRuns(); // Call to fetch latest runs
+        });
+    </script>
+</body>
+</html>
