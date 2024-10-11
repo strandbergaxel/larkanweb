@@ -134,48 +134,6 @@
             }
         }
 
-        async function fetchClubActivities() {
-            const response = await fetch('/club-activities'); // Fetch club activities from the server
-
-            if (response.ok) {
-                const aggregatedActivities = await response.json();
-                displayAggregatedClubActivitySummary(aggregatedActivities);
-            } else {
-                const errorData = await response.json();
-                console.error('Failed to fetch club activities:', errorData);
-                document.getElementById('club-activity-summary').innerHTML = '<p>Inga klubbaktiviteter funna.</p>';
-            }
-        }
-
-        function displayAggregatedClubActivitySummary(aggregatedActivities) {
-            const summaryDiv = document.getElementById('club-activity-summary');
-            if (Object.keys(aggregatedActivities).length === 0) {
-                summaryDiv.innerHTML = '<p>Inga klubbaktiviteter funna.</p>';
-                return;
-            }
-
-            let summaryHTML = '<table class="table table-bordered"><thead><tr><th>Medlem</th><th>Typ</th><th>Antal Aktiviteter</th><th>Total Distans (km)</th><th>Total Tid (sekunder)</th></tr></thead><tbody>';
-
-            for (const memberId in aggregatedActivities) {
-                const member = aggregatedActivities[memberId];
-                for (const activityType in member.activities) {
-                    const activity = member.activities[activityType];
-                    summaryHTML += `
-                        <tr>
-                            <td>${member.name}</td>
-                            <td>${activityType}</td>
-                            <td>${activity.count}</td>
-                            <td>${(activity.totalDistance / 1000).toFixed(2)}</td>
-                            <td>${activity.totalTime}</td>
-                        </tr>
-                    `;
-                }
-            }
-
-            summaryHTML += '</tbody></table>';
-            summaryDiv.innerHTML = summaryHTML;
-        }
-
         // Call fetchMonthlyActivities when the page loads
         $(document).ready(function() {
             fetchMonthlyActivities();
