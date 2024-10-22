@@ -1,0 +1,53 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #2E4D2C; /* Dark green */
+    color: #F1C40F; /* Bright yellow */
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #2E4D2C; /* Dark green */
+    padding: 20px;
+    text-align: center;
+}
+
+.logo-container {
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+.logo {
+    max-width: 100px;
+    height: auto;
+}
+
+nav.navbar {
+    background-color: #F1C40F; /* Bright yellow */
+}
+
+nav a {
+    color: #2E4D2C; /* Dark green */
+    text-decoration: none;
+    margin: 0 15px;
+    font-weight: bold;
+}
+
+nav a:hover {
+    color: #D4AC0D; /* Slightly darker yellow for hover effect */
+}
+
+main {
+    background-color: #fff;
+    color: #2E4D2C; /* Dark green */
+}
+
+footer {
+    background-color: #2E4D2C; /* Dark green */
+    color: #F1C40F; /* Bright yellow */
+    text-align: center;
+    padding: 10px 0;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+}
