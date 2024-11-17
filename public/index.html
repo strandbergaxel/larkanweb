@@ -3,70 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IS Lärkan</title>
+    <title>IS Lärkan - Löpargemenskap i Stockholm</title>
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS files -->
+    <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/styles.css">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/animations.css">
 </head>
 <body>
-    <header class="bg-primary text-white text-center py-5">
-        <div class="logo-container">
-            <img src="images/larkan-logo.png" alt="Lärkan Logo" class="logo">
-        </div>
-        <h1>Välkommen till IS Lärkan</h1>
-        <p>Delta i våra veckoliga löpningar och evenemang!</p>
-    </header>
-
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">IS Lärkan</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item"><a class="nav-link" href="index.html">Hem</a></li>
-                <li class="nav-item"><a class="nav-link" href="about.html">Om oss</a></li>
-                <li class="nav-item"><a class="nav-link" href="contact.html">Kontakt</a></li>
-                <li class="nav-item"><a class="nav-link" href="strava-data.html">Löparstatistik (Kräver inloggning)</a></li>
-            </ul>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="/images/larkan-logo.png" alt="IS Lärkan Logo">
+            </a>
+            <div class="nav-links">
+                <a href="/">Hem</a>
+                <a href="/about">Om oss</a>
+                <a href="/evenemang">Evenemang</a>
+                <a href="/bli-medlem">Bli medlem</a>
+                <a href="/strava-data">Löparstatistik</a>
+            </div>
         </div>
     </nav>
 
-    <main class="container my-5">
-        <section>
-            <h2>Kommande Evenemang</h2>
-            <p>Kolla in våra kommande löpningsevenemang och gå med oss på Strava!</p>
-            <!-- Lägg till evenemangsdetaljer här -->
-        </section>
+    <div class="mobile-menu">
+        <div class="mobile-menu-header">
+            <img src="/images/larkan-logo.png" alt="IS Lärkan Logo">
+            <button class="mobile-menu-close">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        <nav class="mobile-nav">
+            <a href="/">Hem</a>
+            <a href="/about">Om oss</a>
+            <a href="/events">Evenemang</a>
+            <a href="/join">Bli medlem</a>
+            <a href="/strava-data" class="nav-highlight">Löparstatistik</a>
+        </nav>
+    </div>
 
-        <section>
-            <h2>Logga in med Strava</h2>
-            <button onclick="window.location.href='/auth/strava'" class="btn btn-primary">Logga in med Strava</button>
-        </section>
-
-        <section>
-            <h2>Senaste Löpningar</h2>
-            <div id="latest-runs">
-                <!-- Latest runs will be loaded here -->
+    <main>
+        <section class="hero">
+            <div class="hero-background"></div>
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1>Löpning för alla<br>i hjärtat av Stockholm</h1>
+                <p>Anslut dig till vår gemenskap av passionerade löpare.<br>Tillsammans springer vi mot nya mål.</p>
+                <div class="hero-buttons">
+                    <a href="/join" class="button primary">Bli medlem</a>
+                    <a href="/events" class="button secondary">Se evenemang</a>
+                </div>
             </div>
         </section>
 
-        <section>
-            <h2>Strava Club Events</h2>
-            <div id="strava-events">
-                <!-- Strava events will be loaded here -->
+        <section class="features">
+            <div class="container">
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <span class="material-icons">event</span>
+                        <h3>Veckolöp</h3>
+                        <p>Torsdagar 12:00<br>Gemensam löpning för alla nivåer</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="material-icons">group</span>
+                        <h3>Gemenskap</h3>
+                        <p>Träna tillsammans<br>Utvecklas tillsammans</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="material-icons">trending_up</span>
+                        <h3>Strava</h3>
+                        <p>Följ dina framsteg<br>Delta i utmaningar</p>
+                    </div>
+                </div>
             </div>
         </section>
+
+        <!-- Add after the features section -->
+        <section class="statistics">
+            <div class="container">
+                <div class="stats-grid">
+            <div class="stat-card" data-count="150">
+                <h3>Medlemmar</h3>
+                <div class="stat-number">150+</div>
+            </div>
+            <div class="stat-card" data-count="52">
+                <h3>Veckolöp per år</h3>
+                <div class="stat-number">52</div>
+            </div>
+            <div class="stat-card" data-count="1000">
+                <h3>Kilometer tillsammans</h3>
+                <div class="stat-number">1000+</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="events">
+    <div class="container">
+        <h2>Kommande evenemang</h2>
+        <div class="event-grid">
+            <div class="event-card">
+                <div class="event-date">Tors<br>12:00</div>
+                <div class="event-details">
+                    <h3>Veckolöpning</h3>
+                    <p>5km gemensam löpning</p>
+                </div>
+                <a href="#" class="button primary">Anmäl dig</a>
+            </div>
+            <!-- More event cards -->
+            </div>
+        </div>
+    </section>
+
+<section class="testimonials">
+    <div class="container">
+        <h2>Våra löpare berättar</h2>
+        <div class="testimonial-slider">
+            <div class="testimonial-card">
+                <p>"Bästa löpargemenskapen i Stockholm!"</p>
+                <div class="testimonial-author">Erik K.</div>
+            </div>
+            <!-- More testimonials -->
+        </div>
+        </div>
+    </section>
     </main>
-
-    <div id="footer-placeholder"></div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="js/scripts.js"></script>
-    <script>
-        $(document).ready(function(){
-            $("#footer-placeholder").load("footer.html");
-            fetchLatestRuns(); // Call to fetch latest runs
-        });
-    </script>
+        <!-- Add before closing body tag -->
+        <script src="/js/main.js"></script>
 </body>
 </html>

@@ -1,0 +1,100 @@
+/* Hero Section */
+.md-hero {
+    position: relative;
+    height: 400px;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--md-sys-color-on-primary);
+    text-align: center;
+    padding: 0 24px;
+}
+
+.md-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(rgba(27, 66, 32, 0.7), rgba(27, 66, 32, 0.9));
+    z-index: 1;
+}
+
+.md-hero * {
+    position: relative;
+    z-index: 2;
+}
+
+.md-hero-small {
+    height: 250px;
+}
+
+/* Grid Layout */
+.md-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Navigation */
+.md-navigation {
+    margin-left: auto;
+    display: flex;
+    gap: 24px;
+}
+
+.md-nav-item {
+    color: var(--md-sys-color-on-primary);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.md-nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Stats Components */
+.md-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.md-stats-item {
+    background-color: var(--md-sys-color-surface-variant);
+    padding: 16px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+/* Map Component */
+.md-map {
+    height: 400px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Social Buttons */
+.md-social-buttons {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.md-button-strava {
+    background-color: #FC4C02;
+}
+
+.md-button-instagram {
+    background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);
+}

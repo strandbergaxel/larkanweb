@@ -1,0 +1,66 @@
+/* Input Base Styles */
+.input-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.input-field {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid var(--larkan-green);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: var(--larkan-white);
+}
+
+.input-label {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--larkan-white);
+    padding: 0 0.5rem;
+    color: var(--larkan-green);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+/* Focus & Filled States */
+.input-field:focus,
+.input-field:not(:placeholder-shown) {
+    border-color: var(--larkan-gold);
+    outline: none;
+}
+
+.input-field:focus ~ .input-label,
+.input-field:not(:placeholder-shown) ~ .input-label {
+    top: 0;
+    font-size: 0.875rem;
+    color: var(--larkan-gold);
+}
+
+/* Validation States */
+.input-field.is-valid {
+    border-color: #2E7D32;
+}
+
+.input-field.is-invalid {
+    border-color: #D32F2F;
+}
+
+.validation-message {
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: none;
+}
+
+.validation-message.error {
+    color: #D32F2F;
+    display: block;
+}
+
+.validation-message.success {
+    color: #2E7D32;
+    display: block;
+} 

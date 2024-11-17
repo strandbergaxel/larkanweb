@@ -1,55 +1,53 @@
 <!DOCTYPE html>
 <html lang="sv">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Om IS Lärkan</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Om oss - IS Lärkan</title>
+        
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        
+        <!-- CSS files -->
+        <link rel="stylesheet" href="css/theme.css">
+        <link rel="stylesheet" href="css/styles.css">
+        <link rel="stylesheet" href="css/animations.css">
+    </head>
 <body>
-    <header class="bg-primary text-white text-center py-5">
-        <h1>Om IS Lärkan</h1>
-    </header>
-
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">IS Lärkan</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item"><a class="nav-link" href="index.html">Hem</a></li>
-                <li class="nav-item"><a class="nav-link" href="about.html">Om oss</a></li>
-                <li class="nav-item"><a class="nav-link" href="contact.html">Kontakt</a></li>
-            </ul>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="/images/larkan-logo.png" alt="IS Lärkan Logo">
+            </a>
+            <div class="nav-links">
+                <a href="/">Hem</a>
+                <a href="/about" class="nav-highlight">Om oss</a>
+                <a href="/evenemang">Evenemang</a>
+                <a href="/bli-medlem">Bli medlem</a>
+                <a href="/strava-data">Löparstatistik</a>
+            </div>
         </div>
     </nav>
 
-    <main class="container my-5">
-        <section>
-            <h2>Vår historia</h2>
-            <p>IS Lärkan är ett idrottssällskap grundat i Stockholm i oktober 2023. Vi är en gemenskap av passionerade idrottare som träffas veckovis för löpning och andra evenemang. Vår mission är att främja en hälsosam livsstil och skapa en stödjande gemenskap för idrottare på alla nivåer.</p>
+    <main>
+        <section class="hero">
+            <div class="hero-background"></div>
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1>Om IS Lärkan</h1>
+                <p>En löpargemenskap i hjärtat av Stockholm</p>
+            </div>
         </section>
 
-        <section>
-            <h2>Häng på oss!</h2>
-            <ul>
-                <li><a href="#" target="_blank">Följ oss på Instagram</a></li>
-                <li><a href="#" target="_blank">Gå med oss på Strava</a></li>
-                <!-- Lägg till fler sociala medielänkar vid behov -->
-            </ul>
+        <section class="content-section">
+            <div class="container">
+                <div class="text-content">
+                    <h2>Vår Historia</h2>
+                    <p>IS Lärkan grundades i Stockholm oktober 2023 av en grupp entusiastiska löpare. Vår vision är att skapa en inkluderande gemenskap där alla kan utvecklas tillsammans.</p>
+                </div>
+            </div>
         </section>
     </main>
-
-    <div id="footer-placeholder"></div>
-
-    <script>
-        // Load the footer content
-        $(function(){
-            $("#footer-placeholder").load("footer.html");
-        });
-    </script>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bli Medlem - IS Lärkan</title>
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS files -->
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="/images/larkan-logo.png" alt="IS Lärkan Logo">
+            </a>
+            <div class="nav-links">
+                <a href="/">Hem</a>
+                <a href="/about">Om oss</a>
+                <a href="/evenemang">Evenemang</a>
+                <a href="/bli-medlem" class="nav-highlight">Bli medlem</a>
+                <a href="/strava-data">Löparstatistik</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="hero-background"></div>
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1>Bli medlem</h1>
+                <p>Anslut dig till vår löpargemenskap</p>
+            </div>
+        </section>
+
+        <section class="membership-form">
+            <div class="container">
+                <form id="joinForm" class="form-card">
+                    <div class="input-group">
+                        <input type="text" 
+                               id="name" 
+                               class="input-field" 
+                               placeholder=" "
+                               required
+                               pattern="[A-Za-zÀ-ÖØ-öø-ÿ\s]{2,50}"
+                        >
+                        <label for="name" class="input-label">Namn</label>
+                        <div class="validation-message"></div>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="email" 
+                               id="email" 
+                               class="input-field" 
+                               placeholder=" "
+                               required
+                        >
+                        <label for="email" class="input-label">E-post</label>
+                        <div class="validation-message"></div>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="tel" 
+                               id="phone" 
+                               class="input-field" 
+                               placeholder=" "
+                               pattern="[0-9+\s-]{6,}"
+                        >
+                        <label for="phone" class="input-label">Telefon (valfritt)</label>
+                        <div class="validation-message"></div>
+                    </div>
+
+                    <button type="submit" class="button primary">
+                        <span class="button-text">Skicka ansökan</span>
+                        <div class="button-loader"></div>
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.getElementById('joinForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Add form submission logic here
+            alert('Tack för din ansökan! Vi återkommer inom kort.');
+        });
+    </script>
+</body>
+</html> 
