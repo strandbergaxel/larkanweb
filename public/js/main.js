@@ -32,4 +32,53 @@ function animateValue(element, start, end, duration) {
 document.querySelectorAll('.stat-number').forEach(stat => {
     const finalValue = parseInt(stat.getAttribute('data-count'));
     animateValue(stat, 0, finalValue, 2000);
+});
+
+// Mobile Menu
+const mobileMenuButton = document.querySelector('.mobile-menu-button');
+const mobileMenu = document.querySelector('.mobile-menu');
+const mobileMenuClose = document.querySelector('.mobile-menu-close');
+
+mobileMenuButton.addEventListener('click', () => {
+    mobileMenu.classList.add('active');
+    document.body.style.overflow = 'hidden';
+});
+
+mobileMenuClose.addEventListener('click', () => {
+    mobileMenu.classList.remove('active');
+    document.body.style.overflow = '';
+});
+
+// Parallax Effect
+window.addEventListener('scroll', () => {
+    const scrolled = window.pageYOffset;
+    const parallaxElements = document.querySelectorAll('.parallax');
+    
+    parallaxElements.forEach(el => {
+        const speed = el.dataset.speed || 0.5;
+        el.style.transform = `translateY(${scrolled * speed}px)`;
+    });
+});
+
+// Smooth Scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    });
+});
+
+// Interactive hover effects
+document.querySelectorAll('.feature-card, .event-card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-8px)';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+    });
 }); 

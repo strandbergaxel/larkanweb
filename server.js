@@ -44,13 +44,32 @@ app.get('/callback', async (req, res) => {
     }
 });
 
+app.get('/strava-data', (req, res) => {
+    res.sendFile(__dirname + '/public/strava-data.html');
+});
+
+app.get('/about', (req, res) => {
+    res.sendFile(__dirname + '/public/about.html');
+});
+
+app.get('/evenemang', (req, res) => {
+    res.sendFile(__dirname + '/public/evenemang.html');
+});
+
+app.get('/bli-medlem', (req, res) => {
+    res.sendFile(__dirname + '/public/bli-medlem.html');
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
 
 app.get('/monthly-activities', async (req, res) => {
     if (!accessToken) {
-        return res.status(401).send('Unauthorized: No access token available');
+        return res.status(401).json({
+            error: 'Not authenticated',
+            authUrl: `/auth/strava`
+        });
     }
 
     try {
@@ -132,3 +151,31 @@ function decodePolyline(encoded) {
     }
     return coordinates;
 }
+
+// Add after existing routes
+const redirects = {
+    '/loparstatistik': '/strava-data',
+    '/events': '/evenemang',
+    '/join': '/bli-medlem'
+};
+
+// Handle redirects
+app.get('*', (req, res, next) => {
+    const redirect = redirects[req.path];
+    if (redirect) {
+        res.redirect(301, redirect);
+    } else {
+        next();
+    }
+});
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).sendFile(__dirname + '/public/404.html');
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).sendFile(__dirname + '/public/500.html');
+});

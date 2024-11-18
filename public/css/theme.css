@@ -2,19 +2,19 @@
 
 :root {
   /* Primary Colors */
-  --md-sys-color-primary: #1B4220;
-  --md-sys-color-primary-container: #2E4D2C;
-  --md-sys-color-on-primary: #FFFFFF;
-  
-  /* Secondary Colors */
-  --md-sys-color-secondary: #FFD700;
-  --md-sys-color-secondary-container: #FFE44D;
-  --md-sys-color-on-secondary: #1B4220;
+  --larkan-green: #1B4220;
+  --larkan-gold: #FFD700;
+  --larkan-white: #FFFFFF;
   
   /* Surface Colors */
-  --md-sys-color-surface: #FFFFFF;
-  --md-sys-color-surface-variant: #F5F5F5;
-  --md-sys-color-on-surface: #1B4220;
+  --surface-primary: var(--larkan-green);
+  --surface-secondary: var(--larkan-white);
+  --surface-accent: var(--larkan-gold);
+  
+  /* Text Colors */
+  --text-on-primary: var(--larkan-white);
+  --text-on-secondary: var(--larkan-green);
+  --text-on-accent: var(--larkan-green);
   
   /* Elevation */
   --md-elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);

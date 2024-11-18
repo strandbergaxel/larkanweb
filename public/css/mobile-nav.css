@@ -1,1 +1,56 @@
- 
+.mobile-menu-button {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--larkan-white);
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 80%;
+    height: 100vh;
+    background: var(--larkan-green);
+    z-index: 2000;
+    transition: right 0.3s ease;
+    padding: 2rem;
+}
+
+.mobile-menu.active {
+    right: 0;
+}
+
+.mobile-menu-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--larkan-white);
+    cursor: pointer;
+}
+
+.mobile-nav {
+    margin-top: 3rem;
+}
+
+.mobile-nav a {
+    display: block;
+    color: var(--larkan-white);
+    text-decoration: none;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+    }
+    
+    .mobile-menu-button {
+        display: block;
+    }
+} 
