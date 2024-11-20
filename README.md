@@ -2,34 +2,36 @@
 
 ## Overview
 
-The Larkan website is a modern web application built with Next.js that serves as the online presence for Larkan. It provides information about the company, its services, and ways to get in touch.
+The Larkan website serves as the online presence for IS Lärkan running club in Stockholm. It provides information about the club, upcoming events, and integrates with Strava for running statistics.
 
 ## Features
 
 - **Modern Design**: Clean and responsive user interface
-- **Company Information**: Detailed information about Larkan and its services
-- **Contact Form**: Easy way for potential clients to get in touch
-- **Performance Optimized**: Built with modern web technologies for optimal loading speeds
+- **Club Information**: Details about IS Lärkan and its activities
+- **Event Calendar**: Upcoming running events and weekly runs
+- **Strava Integration**: Running statistics for club members
+- **Performance Optimized**: Built with vanilla JavaScript for optimal loading speeds
 
 ## Technologies Used
 
-- **Frontend**: Next.js, React
-- **Deployment**: Vercel
-- **Development**: TypeScript
+- **Frontend**: HTML5, CSS3, JavaScript
+- **Backend**: Node.js
+- **APIs**: Strava API integration
+- **Development**: npm
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js (v18 or higher)
-- npm or yarn
+- npm
 
 ### Installation
 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/strandbergaxel/larkan-website.git
+   git clone https://github.com/yourusername/larkan-website.git
    cd larkan-website
    ```
 
@@ -37,26 +39,25 @@ The Larkan website is a modern web application built with Next.js that serves as
 
    ```bash
    npm install
-   # or
-   yarn install
    ```
 
 3. Run the development server:
 
    ```bash
-   npm run dev
-   # or
-   yarn dev
+   npm start
    ```
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser to view the website.
 
 ## Project Structure
 larkan-website/
-├── app/ # Next.js app directory
-├── components/ # React components
-├── public/ # Static assets
+├── public/ # Static assets and HTML files
+│ ├── css/ # Stylesheets
+│ ├── js/ # JavaScript files
+│ └── images/ # Image assets
+├── server/ # Node.js server files
 └── README.md # Documentation
+
 
 ## Environment Setup
 
