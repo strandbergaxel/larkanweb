@@ -25,4 +25,18 @@
   --md-sys-typescale-headline-medium: 28px;
   --md-sys-typescale-body-large: 16px;
   --md-sys-typescale-body-medium: 14px;
+  
+  --primary-color: #1976d2;
+  --surface-color: #ffffff;
+  --on-surface: #000000;
+  --spacing-unit: 8px;
+}
+
+.elevation-1 {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.elevation-1:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }

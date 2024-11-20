@@ -1,23 +1,17 @@
 <!DOCTYPE html>
 <html lang="sv">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Löparstatistik - IS Lärkan</title>
-        
-        <!-- Material Icons -->
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-        
-        <!-- CSS files -->
-        <link rel="stylesheet" href="css/theme.css">
-        <link rel="stylesheet" href="css/styles.css">
-        <link rel="stylesheet" href="css/animations.css">
-        
-        <!-- Leaflet for map -->
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Löparstatistik - IS Lärkan</title>
+    
+    <!-- Include your existing CSS -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
 <body>
     <nav class="navbar">
         <div class="container">
@@ -34,76 +28,123 @@
         </div>
     </nav>
 
-    <main>
-        <section class="stats-hero">
-            <div class="container">
-                <h1>Löparstatistik</h1>
-                <div id="monthly-stats" class="stats-grid">
-                    <!-- Stats will be loaded here -->
+    <main class="strava-page">
+        <div class="container">
+            <h1 class="section-title">Löparstatistik</h1>
+            
+            <!-- Login Section - Shown when not authenticated -->
+            <div id="loginSection" class="strava-connect-card elevation-2">
+                <div class="strava-logo">
+                    <img src="/images/strava-logo-orange.svg" alt="Strava">
+                </div>
+                <p class="strava-description">För att se klubbens statistik behöver du logga in med ditt Strava-konto</p>
+                <button id="stravaLoginBtn" class="strava-connect-btn">
+                    Anslut till Strava
+                </button>
+            </div>
+
+            <!-- Stats Section - Hidden by default, shown when authenticated -->
+            <div id="statsSection" class="strava-stats-section" style="display: none;">
+                <div class="strava-header">
+                    <h1 class="section-title">Klubbens Statistik</h1>
+                    <div class="strava-sync">
+                        <span id="lastSync"></span>
+                        <button id="refreshStats" class="icon-button">
+                            <span class="material-icons">refresh</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="strava-stats-grid">
+                    <!-- Weekly Stats -->
+                    <div class="stats-card elevation-2">
+                        <h3>Denna vecka</h3>
+                        <div class="stats-content">
+                            <div class="stat-item">
+                                <span class="material-icons">directions_run</span>
+                                <div class="stat-details">
+                                    <span class="stat-value" id="weeklyDistance">0</span>
+                                    <span class="stat-label">kilometer</span>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="material-icons">timer</span>
+                                <div class="stat-details">
+                                    <span class="stat-value" id="weeklyTime">0</span>
+                                    <span class="stat-label">timmar</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Stats -->
+                    <div class="stats-card elevation-2">
+                        <h3>Denna månad</h3>
+                        <div class="stats-content">
+                            <div class="stat-item">
+                                <span class="material-icons">directions_run</span>
+                                <div class="stat-details">
+                                    <span class="stat-value" id="monthlyDistance">0</span>
+                                    <span class="stat-label">kilometer</span>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="material-icons">group</span>
+                                <div class="stat-details">
+                                    <span class="stat-value" id="monthlyParticipants">0</span>
+                                    <span class="stat-label">aktiva löpare</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="recent-activities elevation-2">
+                    <h3>Senaste aktiviteter</h3>
+                    <div id="activitiesList" class="activities-list">
+                        <!-- Activities will be populated by JavaScript -->
+                    </div>
                 </div>
             </div>
-        </section>
-
-        <section class="map-section">
-            <div class="container">
-                <h2>Våra löprundor</h2>
-                <div id="map"></div>
-            </div>
-        </section>
+        </div>
     </main>
 
     <script>
-        // Fetch and display monthly activities
-        fetch('/monthly-activities')
-            .then(response => {
-                if (response.status === 401) {
-                    // If not authenticated, redirect to Strava auth
-                    return response.json().then(data => {
-                        window.location.href = data.authUrl;
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.error) return; // Skip if we're redirecting
-                
-                const statsGrid = document.getElementById('monthly-stats');
-                const activities = data.aggregatedActivities;
-                
-                for (const [type, stats] of Object.entries(activities)) {
-                    const distance = (stats.totalDistance / 1000).toFixed(1);
-                    const hours = Math.floor(stats.totalTime / 3600);
-                    const minutes = Math.floor((stats.totalTime % 3600) / 60);
-                    
-                    statsGrid.innerHTML += `
-                        <div class="stat-card">
-                            <h3>${type}</h3>
-                            <p>Antal: ${stats.count}</p>
-                            <p>Distans: ${distance} km</p>
-                            <p>Tid: ${hours}h ${minutes}m</p>
-                        </div>
-                    `;
-                }
+    // Check if user is already authenticated
+    async function checkAuth() {
+        try {
+            const response = await fetch('/api/strava/check-auth');
+            const { isAuthenticated } = await response.json();
+            
+            if (isAuthenticated) {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('statsSection').style.display = 'block';
+                // Load stats if authenticated
+                loadStravaStats();
+            }
+        } catch (error) {
+            console.error('Auth check failed:', error);
+        }
+    }
 
-                // Initialize map with heatmap data
-                if (data.heatmapData && data.heatmapData.length > 0) {
-                    const map = L.map('map').setView(data.heatmapData[0], 13);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-                    
-                    data.heatmapData.forEach(point => {
-                        L.circle([point[0], point[1]], {
-                            radius: 10,
-                            color: 'red',
-                            fillColor: 'red',
-                            fillOpacity: 0.7
-                        }).addTo(map);
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                // Add error handling UI here
-            });
+    // Handle login button click
+    document.getElementById('stravaLoginBtn').addEventListener('click', async function() {
+        try {
+            const response = await fetch('/api/strava/auth-config');
+            const { clientId, redirectUri } = await response.json();
+            
+            const scope = 'read,activity:read_all';
+            const stravaAuthUrl = `https://www.strava.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`;
+            
+            window.location.href = stravaAuthUrl;
+        } catch (error) {
+            console.error('Failed to initialize Strava login:', error);
+        }
+    });
+
+    // Check auth status when page loads
+    checkAuth();
     </script>
 </body>
 </html>
