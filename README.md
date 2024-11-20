@@ -1,91 +1,78 @@
-# Strava Club Activities Dashboard
+# Larkan Website
 
 ## Overview
 
-The Strava Club Activities Dashboard is a web application that allows users to view their running statistics and the activities of club members. It integrates with the Strava API to fetch and display activities, providing insights into performance metrics for both the authenticated user and their club members.
+The Larkan website is a modern web application built with Next.js that serves as the online presence for Larkan. It provides information about the company, its services, and ways to get in touch.
 
 ## Features
 
-- **User Authentication**: Users can log in using their Strava account.
-- **Activity Summary**: Displays the user's activities for the current month, including total distance and time.
-- **Club Activities**: Fetches and displays activities of club members from a specified Strava club.
-- **Aggregated Data**: Shows aggregated statistics for the user's activities and club members' activities in a tabular format.
+- **Modern Design**: Clean and responsive user interface
+- **Company Information**: Detailed information about Larkan and its services
+- **Contact Form**: Easy way for potential clients to get in touch
+- **Performance Optimized**: Built with modern web technologies for optimal loading speeds
 
 ## Technologies Used
 
-- **Frontend**: HTML, CSS, JavaScript, jQuery, Bootstrap
-- **Backend**: Node.js, Express
-- **Database**: None (uses Strava API directly)
-- **API**: Strava API for fetching user and club activities
+- **Frontend**: Next.js, React
+- **Deployment**: Vercel
+- **Development**: TypeScript
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js installed on your machine
-- A Strava account
-- Access to the Strava API (you may need to create an application in the Strava Developer portal)
+- Node.js (v18 or higher)
+- npm or yarn
 
 ### Installation
 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/strava-club-activities-dashboard.git
-   cd strava-club-activities-dashboard
+   git clone https://github.com/strandbergaxel/larkan-website.git
+   cd larkan-website
    ```
 
-2. Install the required packages:
+2. Install dependencies:
 
    ```bash
    npm install
+   # or
+   yarn install
    ```
 
-3. Create a `.env` file in the root directory and add your Strava API credentials:
-
-   ```
-   STRAVA_CLIENT_ID=your_client_id
-   STRAVA_CLIENT_SECRET=your_client_secret
-   STRAVA_REDIRECT_URI=your_redirect_uri
-   CLUB_ID=1172487
-   ```
-
-4. Start the server:
+3. Run the development server:
 
    ```bash
-   node server.js
+   npm run dev
+   # or
+   yarn dev
    ```
 
-5. Open your browser and navigate to `http://localhost:3000/strava-data.html`.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser to view the website.
 
-### Usage
+## Project Structure
+larkan-website/
+├── app/ # Next.js app directory
+├── components/ # React components
+├── public/ # Static assets
+└── README.md # Documentation
 
-1. Click on the login button to authenticate with your Strava account.
-2. After logging in, you will see your activity summary for the current month.
-3. The dashboard will also display aggregated activities of club members from the specified club.
+## Environment Setup
 
-## Inputs
+1. Copy `.env.example` to `.env.local`
+2. Fill in the required environment variables:
+   - `STRAVA_CLIENT_ID`: Your Strava API client ID
+   - `STRAVA_CLIENT_SECRET`: Your Strava API client secret
+   - `STRAVA_REDIRECT_URI`: OAuth redirect URI
+   - `CLUB_ID`: Your Strava club ID
 
-- **STRAVA_CLIENT_ID**: Your Strava application client ID.
-- **STRAVA_CLIENT_SECRET**: Your Strava application client secret.
-- **STRAVA_REDIRECT_URI**: The redirect URI for your Strava application.
-- **CLUB_ID**: The ID of the Strava club you want to fetch activities from (default is `1172487`).
-
-## API Endpoints
-
-- **GET /monthly-activities**: Fetches the authenticated user's activities for the current month.
-- **GET /club-activities**: Fetches and aggregates activities of club members for the authenticated user.
+These environment variables are required for the Strava integration. Never commit the `.env.local` file to the repository.
 
 ## Contributing
 
-Contributions are welcome! If you have suggestions for improvements or new features, please open an issue or submit a pull request.
+For internal team members: Please follow the established git workflow and coding standards when contributing to this project.
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
-
-## Acknowledgments
-
-- [Strava API Documentation](https://developers.strava.com/docs/)
-- [Leaflet.js](https://leafletjs.com/) for interactive maps
-- [Bootstrap](https://getbootstrap.com/) for responsive design
+This project is proprietary and confidential. All rights reserved.
