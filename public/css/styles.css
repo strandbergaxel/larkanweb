@@ -512,9 +512,9 @@ section {
 
 /* Strava Data Page Styles */
 .strava-page {
+    padding: 4rem 0;
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     min-height: calc(100vh - 80px);
-    padding: 4rem 0;
 }
 
 .strava-section {
@@ -531,6 +531,7 @@ section {
     padding: 3rem;
     border-radius: 20px;
     text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .strava-logo {
@@ -540,6 +541,13 @@ section {
 .strava-logo img {
     height: 40px;
     width: auto;
+}
+
+.strava-description {
+    margin: 1.5rem 0;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    line-height: 1.5;
 }
 
 .strava-connect-btn {
@@ -673,5 +681,14 @@ section {
         flex-direction: column;
         gap: 1rem;
         text-align: center;
+    }
+    
+    .strava-connect-card {
+        margin: 2rem auto;
+        padding: 2rem;
+    }
+    
+    .section-title {
+        font-size: 2rem;
     }
 }

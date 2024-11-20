@@ -2,9 +2,10 @@
 
 :root {
   /* Primary Colors */
-  --larkan-green: #1B4220;
+  --larkan-green: #2B5B3E;
   --larkan-gold: #FFD700;
   --larkan-white: #FFFFFF;
+  --larkan-green-light: #346d4a;
   
   /* Surface Colors */
   --surface-primary: var(--larkan-green);
@@ -26,10 +27,15 @@
   --md-sys-typescale-body-large: 16px;
   --md-sys-typescale-body-medium: 14px;
   
-  --primary-color: #1976d2;
+  --primary-color: #2B5B3E;
   --surface-color: #ffffff;
   --on-surface: #000000;
   --spacing-unit: 8px;
+  --secondary-color: #346d4a;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --background-light: #f8f9fa;
+  --background-dark: #e9ecef;
 }
 
 .elevation-1 {
