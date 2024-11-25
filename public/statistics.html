@@ -278,10 +278,14 @@
             );
 
             // Listen for auth success message
-            window.addEventListener('message', function(event) {
+            window.addEventListener('message', async function(event) {
                 if (event.data === 'strava-auth-success') {
-                    authWindow.close();
-                    checkAuth(); // Check if authentication was successful
+                    console.log('Authentication successful');
+                    await checkAuth(); // Check if authentication was successful
+                    window.location.reload(); // Reload the page to show stats
+                } else if (event.data === 'strava-auth-error') {
+                    console.error('Authentication failed');
+                    alert('Det gick inte att logga in med Strava. Försök igen.');
                 }
             });
 

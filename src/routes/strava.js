@@ -14,18 +14,9 @@ router.use(session({
 
 // Check auth endpoint
 router.get('/check-auth', (req, res) => {
-    try {
-        // Initialize session if it doesn't exist
-        if (!req.session) {
-            req.session = {};
-        }
-        
-        const isAuthenticated = req.session.stravaAccessToken ? true : false;
-        res.json({ isAuthenticated });
-    } catch (error) {
-        console.error('Auth check error:', error);
-        res.status(500).json({ error: 'Failed to check authentication status' });
-    }
+    console.log('Session data:', req.session); // Debug log
+    const isAuthenticated = !!req.session.stravaAccessToken;
+    res.json({ isAuthenticated });
 });
 
 // Auth callback endpoint
@@ -33,6 +24,10 @@ router.get('/callback', async (req, res) => {
     try {
         const { code } = req.query;
         
+        if (!code) {
+            throw new Error('No authorization code received');
+        }
+
         // Exchange code for token
         const tokenResponse = await stravaApi.getToken(code);
         
@@ -40,11 +35,21 @@ router.get('/callback', async (req, res) => {
         req.session.stravaAccessToken = tokenResponse.access_token;
         req.session.stravaRefreshToken = tokenResponse.refresh_token;
         
-        // Send success response
-        res.sendFile(path.join(__dirname, '../../public/strava-callback.html'));
+        // Send HTML that closes popup and messages parent
+        res.send(`
+            <script>
+                window.opener.postMessage('strava-auth-success', '*');
+                window.close();
+            </script>
+        `);
     } catch (error) {
         console.error('Auth callback error:', error);
-        res.status(500).json({ error: 'Authentication failed' });
+        res.status(500).send(`
+            <script>
+                window.opener.postMessage('strava-auth-error', '*');
+                window.close();
+            </script>
+        `);
     }
 });
 

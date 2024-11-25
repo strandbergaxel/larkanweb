@@ -3,6 +3,7 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env.local') });
 const nodemailer = require('nodemailer');
 const stravaRoutes = require('./src/routes/strava');
+const session = require('express-session');
 
 const app = express();
 
@@ -365,6 +366,19 @@ app.get('/api/strava/club-stats', async (req, res) => {
 
 // Mount the Strava routes
 app.use('/api/strava', stravaRoutes);
+
+// Configure session middleware
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production', // Only use secure cookies in production
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    },
+    proxy: true // Trust the reverse proxy
+}));
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {

@@ -1,11 +1,13 @@
 runtime: nodejs18  # Use the Node.js version you're developing with
 
 env_variables:
+  NODE_ENV: "production"
   STRAVA_CLIENT_ID: "97337"
   STRAVA_CLIENT_SECRET: "106ffa6edd6ba1fbb5bc63094279a60569461b35"
   STRAVA_CLUB_ID: "1172487"
   STRAVA_REFRESH_TOKEN: "66a8df403c5fa56162954c1ba54e51c9ba1c93b1"
   STRAVA_REDIRECT_URI: "https://larkan-website.uc.r.appspot.com/api/strava/callback"
+  SESSION_SECRET: "e7571376a285799fcc662cc13f59137863d8b73d2563b7c0110576f0b13ddc3487933d40f446fd20d1dd8f2ef6c6c8e58d6aeccb111994e7ae30838b944ce99a"
 
 handlers:
   # Serve static files
