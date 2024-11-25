@@ -84,8 +84,31 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--primary-color);
+    background-color: var(--larkan-green);
     overflow: hidden;
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../images/runners-hero.jpg');
+    background-size: cover;
+    background-position: center;
+    animation: slowZoom 20s infinite alternate;
+    z-index: 0;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(27, 66, 32, 0.85); /* Dark green overlay */
+    z-index: 1;
 }
 
 .hero-content {

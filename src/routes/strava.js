@@ -1,100 +1,75 @@
 const express = require('express');
+const session = require('express-session');
+const path = require('path');
+const stravaApi = require('../services/stravaApi');
+
 const router = express.Router();
 
-// Strava API credentials from environment variables
-const STRAVA_CLIENT_ID = process.env.STRAVA_CLIENT_ID;
-const STRAVA_CLIENT_SECRET = process.env.STRAVA_CLIENT_SECRET;
-const STRAVA_REDIRECT_URI = process.env.STRAVA_REDIRECT_URI;
-const STRAVA_CLUB_ID = process.env.STRAVA_CLUB_ID;
+router.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
 
-// Check authentication status
-router.get('/check-auth', async (req, res) => {
+// Check auth endpoint
+router.get('/check-auth', (req, res) => {
     try {
-        console.log('Checking auth status:', {
-            hasToken: !!req.session.stravaAccessToken,
-            sessionData: req.session
-        });
-
-        // Check if we have a token
-        if (!req.session.stravaAccessToken) {
-            return res.json({ isAuthenticated: false });
+        // Initialize session if it doesn't exist
+        if (!req.session) {
+            req.session = {};
         }
-
-        // Verify token is valid by making a test API call
-        const response = await fetch('https://www.strava.com/api/v3/athlete', {
-            headers: {
-                'Authorization': `Bearer ${req.session.stravaAccessToken}`
-            }
-        });
-
-        const isAuthenticated = response.ok;
-        console.log('Auth check result:', { isAuthenticated, status: response.status });
-
+        
+        const isAuthenticated = req.session.stravaAccessToken ? true : false;
         res.json({ isAuthenticated });
     } catch (error) {
         console.error('Auth check error:', error);
-        res.status(500).json({ error: 'Authentication check failed', details: error.message });
+        res.status(500).json({ error: 'Failed to check authentication status' });
     }
 });
 
-// Provide Strava authentication configuration
-router.get('/auth-config', (req, res) => {
-    try {
-        if (!STRAVA_CLIENT_ID || !STRAVA_REDIRECT_URI) {
-            throw new Error('Missing Strava configuration');
-        }
-        res.json({
-            clientId: STRAVA_CLIENT_ID,
-            redirectUri: STRAVA_REDIRECT_URI
-        });
-    } catch (error) {
-        console.error('Config retrieval failed:', error);
-        res.status(500).json({ error: 'Could not retrieve Strava configuration' });
-    }
-});
-
-// Handle Strava OAuth callback
+// Auth callback endpoint
 router.get('/callback', async (req, res) => {
     try {
         const { code } = req.query;
-        console.log('Received authorization code:', code);
+        
+        // Exchange code for token
+        const tokenResponse = await stravaApi.getToken(code);
+        
+        // Store tokens in session
+        req.session.stravaAccessToken = tokenResponse.access_token;
+        req.session.stravaRefreshToken = tokenResponse.refresh_token;
+        
+        // Send success response
+        res.sendFile(path.join(__dirname, '../../public/strava-callback.html'));
+    } catch (error) {
+        console.error('Auth callback error:', error);
+        res.status(500).json({ error: 'Authentication failed' });
+    }
+});
 
-        const tokenResponse = await fetch('https://www.strava.com/oauth/token', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                client_id: STRAVA_CLIENT_ID,
-                client_secret: STRAVA_CLIENT_SECRET,
-                code,
-                grant_type: 'authorization_code',
-            }),
+// Auth config endpoint
+router.get('/auth-config', (req, res) => {
+    try {
+        const clientId = process.env.STRAVA_CLIENT_ID;
+        const redirectUri = process.env.STRAVA_REDIRECT_URI;
+
+        console.log('Environment variables:', {
+            clientId: clientId ? 'exists' : 'missing',
+            redirectUri: redirectUri ? 'exists' : 'missing'
         });
 
-        const tokenData = await tokenResponse.json();
-        console.log('Received token data:', tokenData);
-        
-        // Store tokens and athlete info in session
-        req.session.stravaAccessToken = tokenData.access_token;
-        req.session.stravaRefreshToken = tokenData.refresh_token;
-        req.session.stravaTokenExpiry = tokenData.expires_at;
-        req.session.athlete = tokenData.athlete;
+        if (!clientId || !redirectUri) {
+            throw new Error(`Missing Strava configuration: ${!clientId ? 'CLIENT_ID ' : ''}${!redirectUri ? 'REDIRECT_URI' : ''}`);
+        }
 
-        res.send(`
-            <script>
-                window.opener.location.reload();
-                window.close();
-            </script>
-        `);
+        res.json({
+            clientId,
+            redirectUri
+        });
     } catch (error) {
-        console.error('Strava callback failed:', error);
-        res.send(`
-            <script>
-                window.opener.location.href = '/strava-data?error=auth_failed';
-                window.close();
-            </script>
-        `);
+        console.error('Config retrieval failed:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -431,6 +406,67 @@ async function getAccessToken() {
         throw error;
     }
 }
+
+// Stats endpoint
+router.get('/activities', async (req, res) => {
+    try {
+        if (!req.session.stravaAccessToken) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
+        const activities = await stravaApi.getAthleteActivities(req.session.stravaAccessToken);
+        res.json(activities);
+    } catch (error) {
+        console.error('Failed to fetch activities:', error);
+        res.status(500).json({ error: 'Failed to fetch activities' });
+    }
+});
+
+router.get('/stats', async (req, res) => {
+    try {
+        if (!req.session.stravaAccessToken) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
+        // Get activities first
+        const activities = await stravaApi.getAthleteActivities(req.session.stravaAccessToken);
+        
+        // Calculate stats from activities
+        const now = new Date();
+        const weekStart = new Date(now.setDate(now.getDate() - 7));
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        const stats = {
+            weeklyDistance: 0,
+            weeklyTime: 0,
+            monthlyDistance: 0,
+            monthlyParticipants: 0
+        };
+
+        activities.forEach(activity => {
+            const activityDate = new Date(activity.start_date);
+            
+            if (activityDate >= weekStart) {
+                stats.weeklyDistance += activity.distance;
+                stats.weeklyTime += activity.moving_time;
+            }
+            
+            if (activityDate >= monthStart) {
+                stats.monthlyDistance += activity.distance;
+                stats.monthlyParticipants += 1;
+            }
+        });
+
+        // Convert distances from meters to kilometers
+        stats.weeklyDistance = Math.round(stats.weeklyDistance / 1000);
+        stats.monthlyDistance = Math.round(stats.monthlyDistance / 1000);
+
+        res.json(stats);
+    } catch (error) {
+        console.error('Failed to fetch stats:', error);
+        res.status(500).json({ error: 'Failed to fetch stats' });
+    }
+});
 
 module.exports = { getAccessToken };
 module.exports = router; 

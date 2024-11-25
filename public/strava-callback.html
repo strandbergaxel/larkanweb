@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Strava Authentication</title>
+</head>
+<body>
+    <script>
+        // Send success message to opener and close window
+        if (window.opener) {
+            window.opener.postMessage('strava-auth-success', '*');
+            window.close();
+        } else {
+            // Redirect to main page if opened directly
+            window.location.href = '/strava-data';
+        }
+    </script>
+</body>
+</html> 

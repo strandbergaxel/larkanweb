@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistik - IS Lärkan</title>
+    <meta name="description" content="Se statistik för IS Lärkans löpare">
+    
+    <!-- Include your existing CSS -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .strava-logo img {
+            width: 200px;
+            height: auto;
+        }
+        .activity-item {
+            display: flex;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            gap: 1rem;
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .activity-stats span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: #666;
+        }
+
+        .activity-date {
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .monthly-activities {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .activity-type-stats {
+            background: rgba(0, 0, 0, 0.03);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .activity-type-stats h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--larkan-green);
+        }
+
+        .stats-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="/images/larkan-logo.png" alt="IS Lärkan Logo">
+            </a>
+            <div class="nav-links">
+                <a href="/">Hem</a>
+                <a href="/about">Om oss</a>
+                <a href="/events">Evenemang</a>
+                <a href="/join">Bli medlem</a>
+                <a href="/statistics" class="nav-highlight">Statistik</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="strava-page">
+        <div class="container">
+            <h1 class="section-title">Statistik</h1>
+            
+            <!-- Login Section - Shown when not authenticated -->
+            <div id="loginSection" class="strava-connect-card elevation-2">
+                <div class="strava-logo">
+                    <img src="/images/strava-logo.png" alt="Strava">
+                </div>
+                <p class="strava-description">För att se klubbens statistik behöver du logga in med ditt Strava-konto</p>
+                <button id="stravaLoginBtn" class="strava-connect-btn">
+                    Anslut till Strava
+                </button>
+            </div>
+
+            <!-- Stats Section - Hidden by default, shown when authenticated -->
+            <div id="statsSection" class="strava-stats-section" style="display: none;">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        fetch('/components/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.body.insertAdjacentHTML('beforeend', data);
+            });
+    </script>
+
+    <script>
+    // Add this function before the checkAuth function
+    async function loadStravaStats() {
+        try {
+            const statsResponse = await fetch('/api/strava/stats');
+            const monthlyStats = await statsResponse.json();
+            
+            const statsSection = document.getElementById('statsSection');
+            const statsContent = monthlyStats.map(month => `
+                <div class="stats-card elevation-2">
+                    <h3>${formatMonth(month.month)}</h3>
+                    <div class="monthly-activities">
+                        ${month.activities.map(activity => `
+                            <div class="activity-type-stats">
+                                <h4>${activity.type}</h4>
+                                <div class="stats-content">
+                                    <div class="stat-item">
+                                        <span class="material-icons">event</span>
+                                        <div class="stat-details">
+                                            <span class="stat-value">${activity.count}</span>
+                                            <span class="stat-label">aktiviteter</span>
+                                        </div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="material-icons">straighten</span>
+                                        <div class="stat-details">
+                                            <span class="stat-value">${activity.distance}</span>
+                                            <span class="stat-label">kilometer</span>
+                                        </div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="material-icons">timer</span>
+                                        <div class="stat-details">
+                                            <span class="stat-value">${activity.time}</span>
+                                            <span class="stat-label">timmar</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+            
+            statsSection.innerHTML = `
+                <div class="strava-header">
+                    <h1 class="section-title">Min Statistik</h1>
+                    <div class="strava-sync">
+                        <span id="lastSync">Senast uppdaterad: ${new Date().toLocaleTimeString('sv-SE')}</span>
+                    </div>
+                </div>
+                <div class="strava-stats-grid">
+                    ${statsContent}
+                </div>
+            `;
+        } catch (error) {
+            console.error('Failed to load stats:', error);
+        }
+    }
+
+    // Helper function to format month
+    function formatMonth(monthStr) {
+        const [year, month] = monthStr.split('-');
+        const date = new Date(year, parseInt(month) - 1);
+        return date.toLocaleDateString('sv-SE', { year: 'numeric', month: 'long' });
+    }
+
+    async function loadActivities() {
+        try {
+            const response = await fetch('/api/strava/activities');
+            const activities = await response.json();
+            
+            const activitiesList = document.getElementById('activitiesList');
+            activitiesList.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <span class="material-icons">directions_run</span>
+                    </div>
+                    <div class="activity-details">
+                        <h4>${activity.name}</h4>
+                        <div class="activity-stats">
+                            <span><span class="material-icons">straighten</span>${(activity.distance / 1000).toFixed(1)} km</span>
+                            <span><span class="material-icons">timer</span>${Math.round(activity.moving_time / 60)} min</span>
+                            <span><span class="material-icons">speed</span>${Math.round(activity.average_speed * 3.6)} km/h</span>
+                        </div>
+                        <span class="activity-date">${new Date(activity.start_date).toLocaleDateString('sv-SE')}</span>
+                    </div>
+                </div>
+            `).join('');
+            
+        } catch (error) {
+            console.error('Failed to load activities:', error);
+            document.getElementById('activitiesList').innerHTML = '<p>Kunde inte ladda aktiviteter</p>';
+        }
+    }
+
+    // Check if user is already authenticated
+    async function checkAuth() {
+        try {
+            const response = await fetch('/api/strava/check-auth');
+            const { isAuthenticated } = await response.json();
+            
+            if (isAuthenticated) {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('statsSection').style.display = 'block';
+                // Load stats if authenticated
+                loadStravaStats();
+            }
+        } catch (error) {
+            console.error('Auth check failed:', error);
+        }
+    }
+
+    // Handle login button click
+    document.getElementById('stravaLoginBtn').addEventListener('click', async function() {
+        try {
+            const response = await fetch('/api/strava/auth-config');
+            const { clientId, redirectUri } = await response.json();
+            
+            const scope = 'read,activity:read_all';
+            const stravaAuthUrl = `https://www.strava.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`;
+            
+            // Open Strava auth in a new window
+            const width = 600;
+            const height = 700;
+            const left = (window.innerWidth - width) / 2;
+            const top = (window.innerHeight - height) / 2;
+            
+            const authWindow = window.open(
+                stravaAuthUrl,
+                '_blank',
+                `toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=${width},height=${height},left=${left},top=${top}`
+            );
+
+            // Listen for auth success message
+            window.addEventListener('message', function(event) {
+                if (event.data === 'strava-auth-success') {
+                    authWindow.close();
+                    checkAuth(); // Check if authentication was successful
+                }
+            });
+
+        } catch (error) {
+            console.error('Failed to initialize Strava login:', error);
+        }
+    });
+
+    // Check auth status when page loads
+    checkAuth();
+    </script>
+</body>
+</html>
