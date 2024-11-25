@@ -60,5 +60,13 @@
             </div>
         </section>
     </main>
+
+    <script>
+        fetch('/components/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.body.insertAdjacentHTML('beforeend', data);
+            });
+    </script>
 </body>
-</html> 
+</html>

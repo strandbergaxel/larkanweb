@@ -165,7 +165,13 @@
             </div>
         </section>
     </main>
-        <!-- Add before closing body tag -->
-        <script src="/js/main.js"></script>
+
+    <script>
+        fetch('/components/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.body.insertAdjacentHTML('beforeend', data);
+            });
+    </script>
 </body>
 </html>

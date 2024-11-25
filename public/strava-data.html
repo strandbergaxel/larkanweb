@@ -10,6 +10,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/theme.css">
     <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .strava-logo img {
+            width: 200px;
+            height: auto;
+        }
+    </style>
 </head>
 
 <body>
@@ -35,7 +41,7 @@
             <!-- Login Section - Shown when not authenticated -->
             <div id="loginSection" class="strava-connect-card elevation-2">
                 <div class="strava-logo">
-                    <img src="/images/strava-logo-orange.svg" alt="Strava">
+                    <img src="/images/strava-logo.png" alt="Strava">
                 </div>
                 <p class="strava-description">För att se klubbens statistik behöver du logga in med ditt Strava-konto</p>
                 <button id="stravaLoginBtn" class="strava-connect-btn">
@@ -109,6 +115,14 @@
             </div>
         </div>
     </main>
+
+    <script>
+        fetch('/components/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.body.insertAdjacentHTML('beforeend', data);
+            });
+    </script>
 
     <script>
     // Check if user is already authenticated
