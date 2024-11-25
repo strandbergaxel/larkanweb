@@ -194,75 +194,73 @@ function calculateTrend(previous, current) {
 // Update the club stats route with better error handling and logging
 router.get('/club-stats', async (req, res) => {
     try {
-        if (!req.session.stravaAccessToken) {
-            return res.status(401).json({ error: 'Not authenticated' });
-        }
-
         const clubId = process.env.STRAVA_CLUB_ID;
-        if (!clubId) {
-            throw new Error('Strava Club ID not configured');
-        }
-
-        console.log('Fetching club activities...');
+        const accessToken = await getAccessToken();
         
-        const response = await fetch(
-            `https://www.strava.com/api/v3/clubs/${clubId}/activities`,
+        // Fetch club members
+        const membersResponse = await fetch(
+            `https://www.strava.com/api/v3/clubs/${clubId}/members`,
             {
                 headers: {
-                    'Authorization': `Bearer ${req.session.stravaAccessToken}`
+                    'Authorization': `Bearer ${accessToken}`
                 }
             }
         );
 
-        if (!response.ok) {
-            console.error('Strava API error:', response.status, response.statusText);
+        if (!membersResponse.ok) {
+            throw new Error('Failed to fetch club members');
+        }
+
+        const members = await membersResponse.json();
+        console.log(`Club has ${members.length} members`);
+
+        // Fetch activities for distance stats
+        const activitiesResponse = await fetch(
+            `https://www.strava.com/api/v3/clubs/${clubId}/activities`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            }
+        );
+
+        if (!activitiesResponse.ok) {
             throw new Error('Failed to fetch club activities');
         }
 
-        const activities = await response.json();
-        console.log(`Retrieved ${activities.length} club activities`);
-
-        // Calculate stats
-        const now = new Date();
-        const weekStart = new Date(now);
-        weekStart.setHours(0, 0, 0, 0);
-        weekStart.setDate(now.getDate() - now.getDay());
-        
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const activities = await activitiesResponse.json();
 
         const stats = activities.reduce((acc, activity) => {
-            const activityDate = new Date(activity.start_date);
+            if (activity.type !== 'Run') return acc;
             
-            if (activityDate >= weekStart) {
-                acc.weeklyDistance += activity.distance / 1000;
-                acc.weeklyTime += activity.moving_time / 3600;
-            }
-            
-            if (activityDate >= monthStart) {
-                acc.monthlyDistance += activity.distance / 1000;
-                if (!acc.activeRunners.includes(activity.athlete.id)) {
-                    acc.activeRunners.push(activity.athlete.id);
-                }
-            }
+            acc.weeklyDistance += activity.distance / 1000;
+            acc.monthlyDistance += activity.distance / 1000;
 
             return acc;
         }, {
             weeklyDistance: 0,
-            weeklyTime: 0,
-            monthlyDistance: 0,
-            activeRunners: []
+            monthlyDistance: 0
         });
 
-        res.json({
+        const statsResponse = {
             weeklyDistance: Math.round(stats.weeklyDistance * 10) / 10,
-            weeklyTime: Math.round(stats.weeklyTime * 10) / 10,
             monthlyDistance: Math.round(stats.monthlyDistance * 10) / 10,
-            monthlyActiveRunners: stats.activeRunners.length
-        });
+            memberCount: members.length
+        };
+
+        console.log('Final stats:', statsResponse);
+        res.json(statsResponse);
 
     } catch (error) {
         console.error('Club stats error:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            error: error.message,
+            fallback: {
+                weeklyDistance: 0,
+                monthlyDistance: 0,
+                memberCount: 0
+            }
+        });
     }
 });
 
@@ -386,9 +384,9 @@ router.get('/athlete', async (req, res) => {
     }
 });
 
-module.exports = router; 
-
-const fetch = require('node-fetch');
+import('node-fetch').then(module => {
+    global.fetch = module.default;
+});
 
 // Cache for the access token
 let cachedToken = null;
@@ -410,11 +408,14 @@ async function getAccessToken() {
             body: JSON.stringify({
                 client_id: process.env.STRAVA_CLIENT_ID,
                 client_secret: process.env.STRAVA_CLIENT_SECRET,
-                grant_type: 'client_credentials'
+                refresh_token: process.env.STRAVA_REFRESH_TOKEN,
+                grant_type: 'refresh_token'
             })
         });
 
         if (!response.ok) {
+            const errorData = await response.text();
+            console.error('Strava token error:', errorData);
             throw new Error('Failed to get Strava access token');
         }
 
@@ -422,7 +423,6 @@ async function getAccessToken() {
         
         // Cache the token and set expiration
         cachedToken = data.access_token;
-        // Set expiration to 5 minutes before actual expiration to be safe
         tokenExpiration = Date.now() + (data.expires_in - 300) * 1000;
         
         return cachedToken;
@@ -433,3 +433,4 @@ async function getAccessToken() {
 }
 
 module.exports = { getAccessToken };
+module.exports = router; 

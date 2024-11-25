@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evenemang - IS Lärkan</title>
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS files -->
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <style>
+        .events-section {
+            margin-bottom: 3rem;
+        }
+
+        .events-section h2 {
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .no-events {
+            text-align: center;
+            padding: 2rem;
+            background: #f5f5f5;
+            border-radius: 8px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="/images/larkan-logo.png" alt="IS Lärkan Logo">
+            </a>
+            <div class="nav-links">
+                <a href="/">Hem</a>
+                <a href="/about">Om oss</a>
+                <a href="/events" class="nav-highlight">Evenemang</a>
+                <a href="/join">Bli medlem</a>
+                <a href="/strava-data">Statistik</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-background"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-content">
+                <h1>Evenemang</h1>
+                <p>Här hittar du alla våra kommande och tidigare evenemang</p>
+            </div>
+        </div>
+    </section>
+
+    <main>
+        <section class="events-list">
+            <div class="container">
+                <div id="upcomingEvents" class="events-section">
+                    <h2>Kommande evenemang</h2>
+                    <div class="events-grid">
+                        <!-- Upcoming events will be loaded here -->
+                    </div>
+                </div>
+
+                <div id="pastEvents" class="events-section">
+                    <h2>Tidigare evenemang</h2>
+                    <div class="events-grid">
+                        <!-- Past events will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function formatEventDate(dateString) {
+            const eventDate = new Date(dateString);
+            const dayNames = ['Sön', 'Mån', 'Tis', 'Ons', 'Tors', 'Fre', 'Lör'];
+            const monthNames = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
+            
+            return {
+                day: dayNames[eventDate.getDay()],
+                date: eventDate.getDate(),
+                month: monthNames[eventDate.getMonth()],
+                time: eventDate.toLocaleTimeString('sv-SE', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                }),
+                timestamp: eventDate.getTime()
+            };
+        }
+
+        function createEventCard(event, isPast) {
+            const dateInfo = formatEventDate(event.start_date);
+            
+            return `
+                <div class="event-card ${isPast ? 'past-event' : ''}">
+                    <div class="event-header">
+                        <div class="event-date">
+                            <span class="day">${dateInfo.day} ${dateInfo.date} ${dateInfo.month}</span>
+                            <span class="time">${dateInfo.time}</span>
+                        </div>
+                        <span class="material-icons">event_available</span>
+                    </div>
+                    <div class="event-details">
+                        <h3>${event.title}</h3>
+                        <p>${event.description || 'Ingen beskrivning tillgänglig'}</p>
+                        <ul class="event-info">
+                            <li><span class="material-icons">place</span> ${event.address || 'Plats ej angiven'}</li>
+                            <li><span class="material-icons">group</span> Alla nivåer</li>
+                        </ul>
+                    </div>
+                    <a href="https://www.strava.com/clubs/${event.club.id}/group_events/${event.id}" 
+                       target="_blank" 
+                       class="button primary full-width">
+                        ${isPast ? 'Visa detaljer' : 'Anmäl dig'}
+                    </a>
+                </div>
+            `;
+        }
+
+        async function loadAllEvents() {
+            try {
+                const response = await fetch('/api/strava/all-events');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const events = await response.json();
+                const now = Date.now();
+                
+                // Split events into upcoming and past
+                const upcomingEvents = events.filter(event => 
+                    new Date(event.start_date).getTime() > now
+                ).sort((a, b) => 
+                    new Date(a.start_date) - new Date(b.start_date)
+                );
+
+                const pastEvents = events.filter(event => 
+                    new Date(event.start_date).getTime() <= now
+                ).sort((a, b) => 
+                    new Date(b.start_date) - new Date(a.start_date)
+                );
+
+                // Update upcoming events section
+                const upcomingContainer = document.querySelector('#upcomingEvents .events-grid');
+                if (upcomingEvents.length > 0) {
+                    upcomingContainer.innerHTML = upcomingEvents
+                        .map(event => createEventCard(event, false))
+                        .join('');
+                } else {
+                    upcomingContainer.innerHTML = `
+                        <div class="no-events">
+                            <p>Inga kommande evenemang planerade</p>
+                        </div>
+                    `;
+                }
+
+                // Update past events section
+                const pastContainer = document.querySelector('#pastEvents .events-grid');
+                if (pastEvents.length > 0) {
+                    pastContainer.innerHTML = pastEvents
+                        .map(event => createEventCard(event, true))
+                        .join('');
+                } else {
+                    pastContainer.innerHTML = `
+                        <div class="no-events">
+                            <p>Inga tidigare evenemang</p>
+                        </div>
+                    `;
+                }
+
+            } catch (error) {
+                console.error('Error loading events:', error);
+                document.querySelector('#upcomingEvents .events-grid').innerHTML = 
+                    '<div class="no-events"><p>Kunde inte ladda evenemang</p></div>';
+                document.querySelector('#pastEvents .events-grid').innerHTML = 
+                    '<div class="no-events"><p>Kunde inte ladda evenemang</p></div>';
+            }
+        }
+
+        // Load events when the page loads
+        loadAllEvents();
+    </script>
+
+    <script>
+        fetch('/components/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.body.insertAdjacentHTML('beforeend', data);
+            });
+    </script>
+</body>
+</html>

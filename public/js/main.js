@@ -39,14 +39,20 @@ const mobileMenuButton = document.querySelector('.mobile-menu-button');
 const mobileMenu = document.querySelector('.mobile-menu');
 const mobileMenuClose = document.querySelector('.mobile-menu-close');
 
-mobileMenuButton.addEventListener('click', () => {
-    mobileMenu.classList.add('active');
-    document.body.style.overflow = 'hidden';
-});
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Only add event listeners if elements exist
+    if (mobileMenuButton) {
+        mobileMenuButton.addEventListener('click', function() {
+            mobileMenu.classList.add('active');
+        });
+    }
 
-mobileMenuClose.addEventListener('click', () => {
-    mobileMenu.classList.remove('active');
-    document.body.style.overflow = '';
+    if (mobileMenuClose) {
+        mobileMenuClose.addEventListener('click', function() {
+            mobileMenu.classList.remove('active');
+        });
+    }
 });
 
 // Parallax Effect

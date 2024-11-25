@@ -4,9 +4,20 @@ env_variables:
   STRAVA_CLIENT_ID: "97337"
   STRAVA_CLIENT_SECRET: "106ffa6edd6ba1fbb5bc63094279a60569461b35"
   STRAVA_CLUB_ID: "1172487"
+  STRAVA_REFRESH_TOKEN: "66a8df403c5fa56162954c1ba54e51c9ba1c93b1"
 
 handlers:
+  # Serve static files
+  - url: /(.+\.(gif|png|jpg|css|js|ico))$
+    static_files: public/\1
+    upload: public/.*\.(gif|png|jpg|css|js|ico)$
+
+  # Serve the API endpoints
+  - url: /api/.*
+    script: auto
+
+  # All other routes
   - url: /.*
+    script: auto
     secure: always
     redirect_http_response_code: 301
-    script: auto 

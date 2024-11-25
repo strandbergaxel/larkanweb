@@ -23,9 +23,9 @@
             <div class="nav-links">
                 <a href="/">Hem</a>
                 <a href="/about">Om oss</a>
-                <a href="/evenemang">Evenemang</a>
-                <a href="/bli-medlem">Bli medlem</a>
-                <a href="/strava-data">Löparstatistik</a>
+                <a href="/events">Evenemang</a>
+                <a href="/join">Bli medlem</a>
+                <a href="/strava-data">Statistik</a>
             </div>
         </div>
     </nav>
@@ -91,22 +91,22 @@
                         <div class="stat-icon">
                             <span class="material-icons">people</span>
                         </div>
-                        <div class="stat-number" data-count="150">150+</div>
+                        <div class="stat-number" id="memberCount">-</div>
                         <h3 class="stat-label">Medlemmar</h3>
-                    </div>
-                    <div class="stat-card elevation-2">
-                        <div class="stat-icon">
-                            <span class="material-icons">calendar_today</span>
-                        </div>
-                        <div class="stat-number" data-count="52">52</div>
-                        <h3 class="stat-label">Veckolöp per år</h3>
                     </div>
                     <div class="stat-card elevation-2">
                         <div class="stat-icon">
                             <span class="material-icons">directions_run</span>
                         </div>
-                        <div class="stat-number" data-count="1000">1000+</div>
-                        <h3 class="stat-label">Kilometer tillsammans</h3>
+                        <div class="stat-number" id="weeklyDistance">-</div>
+                        <h3 class="stat-label">Total distans</h3>
+                    </div>
+                    <div class="stat-card elevation-2">
+                        <div class="stat-icon">
+                            <span class="material-icons">event</span>
+                        </div>
+                        <div class="stat-number" id="monthlyDistance">-</div>
+                        <h3 class="stat-label">Events</h3>
                     </div>
                 </div>
             </div>
@@ -144,8 +144,8 @@
         
         <section class="testimonials">
             <div class="container">
-                <h2 class="section-title">Våra löpare berättar</h2>
-                <p class="section-subtitle">Upptäck varför våra medlemmar älskar att springa med oss</p>
+                <h2 class="section-title">Våra medlemmar berättar</h2>
+                <p class="section-subtitle">Upptäck varför våra medlemmar älskar att träna med oss</p>
                 <div class="testimonials-container">
                     <div class="testimonial-card elevation-2">
                         <div class="testimonial-content">
@@ -159,7 +159,7 @@
                                 </div>
                                 <div class="author-info">
                                     <strong>Erik K.</strong>
-                                    <span class="author-title">Medlem sedan 2022</span>
+                                    <span class="author-title">Medlem sedan 2023</span>
                                 </div>
                             </div>
                         </div>
@@ -181,13 +181,18 @@
                 }
                 
                 const event = await response.json();
+                console.log('Received event:', event);
+                
                 const eventCard = document.getElementById('nextEvent');
                 const noEvents = document.getElementById('noEvents');
                 
                 if (event) {
                     const eventDate = new Date(event.start_date);
                     const dayNames = ['Sön', 'Mån', 'Tis', 'Ons', 'Tors', 'Fre', 'Lör'];
+                    const monthNames = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
                     const day = dayNames[eventDate.getDay()];
+                    const date = eventDate.getDate();
+                    const month = monthNames[eventDate.getMonth()];
                     const time = eventDate.toLocaleTimeString('sv-SE', { 
                         hour: '2-digit', 
                         minute: '2-digit' 
@@ -196,7 +201,7 @@
                     eventCard.innerHTML = `
                         <div class="event-header">
                             <div class="event-date">
-                                <span class="day">${day}</span>
+                                <span class="day">${day} ${date} ${month}</span>
                                 <span class="time">${time}</span>
                             </div>
                             <span class="material-icons">event_available</span>
@@ -231,6 +236,50 @@
 
         // Load the next event when the page loads
         loadNextEvent();
+    </script>
+
+    <script>
+        async function loadStats() {
+            try {
+                console.log('Starting to load stats...');
+                
+                // Load club stats
+                const statsResponse = await fetch('/api/strava/club-stats');
+                const stats = await statsResponse.json();
+                console.log('Received stats:', stats);
+                
+                // Load events
+                const eventsResponse = await fetch('/api/strava/all-events');
+                const events = await eventsResponse.json();
+                console.log('Received events:', events);
+
+                // Update DOM elements
+                const memberCount = document.getElementById('memberCount');
+                const weeklyDistance = document.getElementById('weeklyDistance');
+                const monthlyDistance = document.getElementById('monthlyDistance');
+
+                if (memberCount && stats.memberCount) {
+                    memberCount.textContent = stats.memberCount;
+                }
+
+                if (weeklyDistance && stats.weeklyDistance) {
+                    weeklyDistance.textContent = `${Math.round(stats.weeklyDistance)} km`;
+                }
+
+                if (monthlyDistance && events) {
+                    monthlyDistance.textContent = events.length;
+                }
+
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                document.getElementById('memberCount').textContent = '0';
+                document.getElementById('weeklyDistance').textContent = '0 km';
+                document.getElementById('monthlyDistance').textContent = '0';
+            }
+        }
+
+        // Load stats when page is fully loaded
+        window.addEventListener('load', loadStats);
     </script>
 
     <!-- Add the footer loader -->
