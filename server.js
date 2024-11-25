@@ -1,181 +1,93 @@
 const express = require('express');
-const axios = require('axios');
-const dotenv = require('dotenv');
-const cors = require('cors');
-
-dotenv.config();
+const path = require('path');
+require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-let accessToken = '';
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(cors());
-app.use(express.static('public')); // Serve static files from the public directory
-
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/public/index.html'); // Serve the index.html file
+// Add CORS headers for development
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
 });
 
-app.get('/auth/strava', (req, res) => {
-    const authUrl = `https://www.strava.com/oauth/authorize?client_id=${process.env.STRAVA_CLIENT_ID}&response_type=code&redirect_uri=${process.env.STRAVA_REDIRECT_URI}&scope=read,read_all,activity:read`;
-    console.log('Authorization URL:', authUrl); // Log the authorization URL
-    res.redirect(authUrl);
-});
-
-app.get('/callback', async (req, res) => {
-    const { code } = req.query;
-    const tokenUrl = 'https://www.strava.com/oauth/token';
-
+// API endpoint for Strava club events
+app.get('/api/strava/club-events', async (req, res) => {
     try {
-        const response = await axios.post(tokenUrl, {
-            client_id: process.env.STRAVA_CLIENT_ID,
-            client_secret: process.env.STRAVA_CLIENT_SECRET,
-            code: code,
-            grant_type: 'authorization_code'
-        });
+        const fetch = (await import('node-fetch')).default;
+        console.log('Fetching club events...');
+        const accessToken = await getStravaAccessToken(fetch);
+        const clubId = process.env.STRAVA_CLUB_ID;
+        
+        const response = await fetch(
+            `https://www.strava.com/api/v3/clubs/${clubId}/group_events`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            }
+        );
 
-        accessToken = response.data.access_token; // Store the access token
-        console.log('Access Token:', accessToken); // Log the access token
-        res.redirect('/strava-data.html'); // Redirect to the Strava data page after login
+        if (!response.ok) {
+            throw new Error(`Strava API error: ${response.status}`);
+        }
+
+        const events = await response.json();
+        console.log(`Found ${events.length} events`);
+        
+        const upcomingEvents = events
+            .filter(event => new Date(event.start_date) > new Date())
+            .sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+
+        res.json(upcomingEvents[0] || null);
+
     } catch (error) {
-        console.error('Error obtaining access token:', error.response ? error.response.data : error.message);
-        res.status(500).send('Error obtaining access token');
+        console.error('Error fetching club events:', error);
+        res.status(500).json({ error: 'Failed to fetch club events', details: error.message });
     }
 });
 
-app.get('/strava-data', (req, res) => {
-    res.sendFile(__dirname + '/public/strava-data.html');
-});
-
-app.get('/about', (req, res) => {
-    res.sendFile(__dirname + '/public/about.html');
-});
-
-app.get('/evenemang', (req, res) => {
-    res.sendFile(__dirname + '/public/evenemang.html');
-});
-
-app.get('/bli-medlem', (req, res) => {
-    res.sendFile(__dirname + '/public/bli-medlem.html');
-});
-
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
-
-app.get('/monthly-activities', async (req, res) => {
-    if (!accessToken) {
-        return res.status(401).json({
-            error: 'Not authenticated',
-            authUrl: `/auth/strava`
-        });
-    }
-
-    try {
-        const response = await axios.get('https://www.strava.com/api/v3/athlete/activities', {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        });
-
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
-        const monthlyActivities = response.data.filter(activity => {
-            const activityDate = new Date(activity.start_date);
-            return activityDate.getMonth() === currentMonth && activityDate.getFullYear() === currentYear;
-        });
-
-        const aggregatedActivities = {};
-        const heatmapData = [];
-
-        monthlyActivities.forEach(activity => {
-            const type = activity.type;
-            if (!aggregatedActivities[type]) {
-                aggregatedActivities[type] = {
-                    count: 0,
-                    totalDistance: 0,
-                    totalTime: 0
-                };
-            }
-            aggregatedActivities[type].count += 1;
-            aggregatedActivities[type].totalDistance += activity.distance;
-            aggregatedActivities[type].totalTime += activity.moving_time;
-
-            // Collect latitude and longitude for heatmap
-            if (activity.map && activity.map.summary_polyline) {
-                const decodedPath = decodePolyline(activity.map.summary_polyline);
-                decodedPath.forEach(point => {
-                    // Ensure valid coordinates
-                    if (point.lat >= -90 && point.lat <= 90 && point.lng >= -180 && point.lng <= 180) {
-                        heatmapData.push([point.lat, point.lng]);
-                    }
-                });
-            }
-        });
-
-        res.json({ aggregatedActivities, heatmapData });
-    } catch (error) {
-        console.error('Error fetching activities:', error.response ? error.response.data : error.message);
-        res.status(500).send('Error fetching activities');
-    }
-});
-
-// Function to decode polyline
-function decodePolyline(encoded) {
-    const coordinates = [];
-    let index = 0, len = encoded.length;
-    let lat = 0, lng = 0;
-
-    while (index < len) {
-        let b, shift = 0, result = 0;
-        do {
-            b = encoded.charCodeAt(index++) - 63;
-            result |= (b & 0x1f) << shift;
-            shift += 5;
-        } while (b >= 0x20);
-        const dlat = ((result & 1) ? ~(result >> 1) : (result >> 1));
-        lat += dlat;
-
-        shift = 0;
-        result = 0;
-        do {
-            b = encoded.charCodeAt(index++) - 63;
-            result |= (b & 0x1f) << shift;
-            shift += 5;
-        } while (b >= 0x20);
-        const dlng = ((result & 1) ? ~(result >> 1) : (result >> 1));
-        lng += dlng;
-
-        coordinates.push({ lat: lat / 1E5, lng: lng / 1E5 });
-    }
-    return coordinates;
-}
-
-// Add after existing routes
-const redirects = {
-    '/loparstatistik': '/strava-data',
-    '/events': '/evenemang',
-    '/join': '/bli-medlem'
+// Define routes for HTML pages
+const routes = {
+    '/': 'index.html',
+    '/about': 'about.html',
+    '/evenemang': 'evenemang.html',
+    '/bli-medlem': 'bli-medlem.html',
+    '/strava-data': 'strava-data.html'
 };
 
-// Handle redirects
-app.get('*', (req, res, next) => {
-    const redirect = redirects[req.path];
-    if (redirect) {
-        res.redirect(301, redirect);
-    } else {
-        next();
-    }
+// Handle defined routes
+Object.entries(routes).forEach(([route, file]) => {
+    app.get(route, (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', file), (err) => {
+            if (err) {
+                console.error(`Error sending file ${file}:`, err);
+                res.status(404).send('Page not found');
+            }
+        });
+    });
 });
 
-// 404 handler
+// Remove the catch-all route that was sending index.html
+// Handle 404s for undefined routes
 app.use((req, res) => {
-    res.status(404).sendFile(__dirname + '/public/404.html');
+    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'), (err) => {
+        if (err) {
+            res.status(404).send('Page not found');
+        }
+    });
 });
 
-// Error handler
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).sendFile(__dirname + '/public/500.html');
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log('Available routes:', Object.keys(routes));
+    console.log('Environment variables loaded:', {
+        STRAVA_CLIENT_ID: process.env.STRAVA_CLIENT_ID ? 'Set' : 'Not set',
+        STRAVA_CLIENT_SECRET: process.env.STRAVA_CLIENT_SECRET ? 'Set' : 'Not set',
+        STRAVA_CLUB_ID: process.env.STRAVA_CLUB_ID ? 'Set' : 'Not set'
+    });
 });

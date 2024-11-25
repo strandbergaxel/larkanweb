@@ -105,12 +105,12 @@ router.get('/personal-stats', async (req, res) => {
             return res.status(401).json({ error: 'Not authenticated' });
         }
 
-        // Get activities for the last month
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        // Fetch activities for the last 2 weeks to compare
+        const twoWeeksAgo = new Date();
+        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
 
         const response = await fetch(
-            `https://www.strava.com/api/v3/athlete/activities?after=${Math.floor(oneMonthAgo.getTime() / 1000)}`,
+            `https://www.strava.com/api/v3/athlete/activities?after=${Math.floor(twoWeeksAgo.getTime() / 1000)}`,
             {
                 headers: {
                     'Authorization': `Bearer ${req.session.stravaAccessToken}`
@@ -124,15 +124,59 @@ router.get('/personal-stats', async (req, res) => {
 
         const activities = await response.json();
 
-        // Format activities for the heatmap
-        const formattedActivities = activities.map(activity => ({
-            start_date: activity.start_date,
-            distance: activity.distance,
-            type: activity.type
-        }));
+        // Get start dates for current and previous weeks
+        const now = new Date();
+        const currentWeekStart = new Date(now);
+        currentWeekStart.setDate(now.getDate() - now.getDay());
+        currentWeekStart.setHours(0, 0, 0, 0);
+
+        const previousWeekStart = new Date(currentWeekStart);
+        previousWeekStart.setDate(previousWeekStart.getDate() - 7);
+
+        // Calculate stats for both weeks
+        const currentWeekStats = {
+            distance: 0,
+            time: 0,
+            elevation: 0,
+            activities: 0
+        };
+
+        const previousWeekStats = {
+            distance: 0,
+            time: 0,
+            elevation: 0,
+            activities: 0
+        };
+
+        activities.forEach(activity => {
+            const activityDate = new Date(activity.start_date);
+            const stats = activityDate >= currentWeekStart ? currentWeekStats : 
+                         (activityDate >= previousWeekStart ? previousWeekStats : null);
+            
+            if (stats) {
+                stats.distance += activity.distance / 1000; // km
+                stats.time += activity.moving_time / 3600; // hours
+                stats.elevation += activity.total_elevation_gain || 0;
+                stats.activities += 1;
+            }
+        });
+
+        // Calculate trends (percentage change)
+        const trends = {
+            distance: calculateTrend(previousWeekStats.distance, currentWeekStats.distance),
+            time: calculateTrend(previousWeekStats.time, currentWeekStats.time),
+            elevation: calculateTrend(previousWeekStats.elevation, currentWeekStats.elevation),
+            activities: calculateTrend(previousWeekStats.activities, currentWeekStats.activities)
+        };
 
         res.json({
-            activities: formattedActivities
+            current: {
+                distance: Math.round(currentWeekStats.distance * 10) / 10,
+                time: Math.round(currentWeekStats.time * 10) / 10,
+                elevation: Math.round(currentWeekStats.elevation),
+                activities: currentWeekStats.activities
+            },
+            trends
         });
 
     } catch (error) {
@@ -343,3 +387,49 @@ router.get('/athlete', async (req, res) => {
 });
 
 module.exports = router; 
+
+const fetch = require('node-fetch');
+
+// Cache for the access token
+let cachedToken = null;
+let tokenExpiration = null;
+
+async function getAccessToken() {
+    try {
+        // Check if we have a valid cached token
+        if (cachedToken && tokenExpiration && Date.now() < tokenExpiration) {
+            return cachedToken;
+        }
+
+        // If not, request a new token
+        const response = await fetch('https://www.strava.com/oauth/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                client_id: process.env.STRAVA_CLIENT_ID,
+                client_secret: process.env.STRAVA_CLIENT_SECRET,
+                grant_type: 'client_credentials'
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to get Strava access token');
+        }
+
+        const data = await response.json();
+        
+        // Cache the token and set expiration
+        cachedToken = data.access_token;
+        // Set expiration to 5 minutes before actual expiration to be safe
+        tokenExpiration = Date.now() + (data.expires_in - 300) * 1000;
+        
+        return cachedToken;
+    } catch (error) {
+        console.error('Error getting Strava access token:', error);
+        throw error;
+    }
+}
+
+module.exports = { getAccessToken };

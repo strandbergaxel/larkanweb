@@ -117,7 +117,7 @@
                 <h2 class="section-title">Kommande evenemang</h2>
                 <p class="section-subtitle">Anslut dig till våra inspirerande löparaktiviteter</p>
                 <div class="events-container">
-                    <div class="event-card elevation-2">
+                    <div class="event-card elevation-2" id="nextEvent">
                         <div class="event-header">
                             <div class="event-date">
                                 <span class="day">Tors</span>
@@ -134,6 +134,9 @@
                             </ul>
                         </div>
                         <button class="button primary full-width">Anmäl dig</button>
+                    </div>
+                    <div class="event-card elevation-2" id="noEvents" style="display: none;">
+                        <p>Inga kommande evenemang</p>
                     </div>
                 </div>
             </div>
@@ -166,6 +169,71 @@
         </section>
     </main>
 
+    <!-- Add before closing body tag -->
+    <script src="/js/main.js"></script>
+    <script>
+        async function loadNextEvent() {
+            try {
+                const response = await fetch('/api/strava/club-events');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const event = await response.json();
+                const eventCard = document.getElementById('nextEvent');
+                const noEvents = document.getElementById('noEvents');
+                
+                if (event) {
+                    const eventDate = new Date(event.start_date);
+                    const dayNames = ['Sön', 'Mån', 'Tis', 'Ons', 'Tors', 'Fre', 'Lör'];
+                    const day = dayNames[eventDate.getDay()];
+                    const time = eventDate.toLocaleTimeString('sv-SE', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    });
+
+                    eventCard.innerHTML = `
+                        <div class="event-header">
+                            <div class="event-date">
+                                <span class="day">${day}</span>
+                                <span class="time">${time}</span>
+                            </div>
+                            <span class="material-icons">event_available</span>
+                        </div>
+                        <div class="event-details">
+                            <h3>${event.title}</h3>
+                            <p>${event.description || 'Ingen beskrivning tillgänglig'}</p>
+                            <ul class="event-info">
+                                <li><span class="material-icons">place</span> ${event.address || 'Plats ej angiven'}</li>
+                                <li><span class="material-icons">group</span> Alla nivåer</li>
+                            </ul>
+                        </div>
+                        <a href="https://www.strava.com/clubs/${event.club.id}/group_events/${event.id}" 
+                           target="_blank" 
+                           class="button primary full-width">
+                            Anmäl dig
+                        </a>
+                    `;
+                    
+                    eventCard.style.display = 'block';
+                    noEvents.style.display = 'none';
+                } else {
+                    eventCard.style.display = 'none';
+                    noEvents.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading next event:', error);
+                document.getElementById('nextEvent').style.display = 'none';
+                document.getElementById('noEvents').style.display = 'block';
+            }
+        }
+
+        // Load the next event when the page loads
+        loadNextEvent();
+    </script>
+
+    <!-- Add the footer loader -->
     <script>
         fetch('/components/footer.html')
             .then(response => response.text())

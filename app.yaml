@@ -1,0 +1,12 @@
+runtime: nodejs18  # Use the Node.js version you're developing with
+
+env_variables:
+  STRAVA_CLIENT_ID: "97337"
+  STRAVA_CLIENT_SECRET: "106ffa6edd6ba1fbb5bc63094279a60569461b35"
+  STRAVA_CLUB_ID: "1172487"
+
+handlers:
+  - url: /.*
+    secure: always
+    redirect_http_response_code: 301
+    script: auto 

@@ -49,4 +49,4 @@ function updateLastSync() {
     const now = new Date();
     document.getElementById('lastSync').textContent = 
         `Senast uppdaterad: ${now.toLocaleTimeString()}`;
-} 
+}
