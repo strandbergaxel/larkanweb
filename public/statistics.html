@@ -245,11 +245,15 @@
             const response = await fetch('/api/strava/check-auth');
             const { isAuthenticated } = await response.json();
             
+            console.log('Auth status:', isAuthenticated); // Debug log
+            
             if (isAuthenticated) {
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('statsSection').style.display = 'block';
-                // Load stats if authenticated
-                loadStravaStats();
+                await loadStravaStats();
+            } else {
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('statsSection').style.display = 'none';
             }
         } catch (error) {
             console.error('Auth check failed:', error);
