@@ -52,15 +52,20 @@ router.get('/callback', async (req, res) => {
 router.get('/auth-config', (req, res) => {
     try {
         const clientId = process.env.STRAVA_CLIENT_ID;
-        const redirectUri = process.env.STRAVA_REDIRECT_URI;
+        const appDomain = req.get('host');
+        // Use HTTP for localhost, HTTPS for production
+        const protocol = appDomain.includes('localhost') ? 'http' : 'https';
+        const redirectUri = `${protocol}://${appDomain}/api/strava/callback`;
 
-        console.log('Environment variables:', {
-            clientId: clientId ? 'exists' : 'missing',
-            redirectUri: redirectUri ? 'exists' : 'missing'
+        console.log('Auth config:', {
+            appDomain,
+            protocol,
+            redirectUri,
+            clientId: clientId ? 'exists' : 'missing'
         });
 
-        if (!clientId || !redirectUri) {
-            throw new Error(`Missing Strava configuration: ${!clientId ? 'CLIENT_ID ' : ''}${!redirectUri ? 'REDIRECT_URI' : ''}`);
+        if (!clientId) {
+            throw new Error('Missing Strava configuration: CLIENT_ID');
         }
 
         res.json({

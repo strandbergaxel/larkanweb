@@ -5,6 +5,7 @@ env_variables:
   STRAVA_CLIENT_SECRET: "106ffa6edd6ba1fbb5bc63094279a60569461b35"
   STRAVA_CLUB_ID: "1172487"
   STRAVA_REFRESH_TOKEN: "66a8df403c5fa56162954c1ba54e51c9ba1c93b1"
+  STRAVA_REDIRECT_URI: "https://larkan-website.uc.r.appspot.com/api/strava/callback"
 
 handlers:
   # Serve static files
