@@ -142,45 +142,11 @@
     async function loadStravaStats() {
         try {
             const statsResponse = await fetch('/api/strava/stats');
-            const monthlyStats = await statsResponse.json();
+            const stats = await statsResponse.json();
             
             const statsSection = document.getElementById('statsSection');
-            const statsContent = monthlyStats.map(month => `
-                <div class="stats-card elevation-2">
-                    <h3>${formatMonth(month.month)}</h3>
-                    <div class="monthly-activities">
-                        ${month.activities.map(activity => `
-                            <div class="activity-type-stats">
-                                <h4>${activity.type}</h4>
-                                <div class="stats-content">
-                                    <div class="stat-item">
-                                        <span class="material-icons">event</span>
-                                        <div class="stat-details">
-                                            <span class="stat-value">${activity.count}</span>
-                                            <span class="stat-label">aktiviteter</span>
-                                        </div>
-                                    </div>
-                                    <div class="stat-item">
-                                        <span class="material-icons">straighten</span>
-                                        <div class="stat-details">
-                                            <span class="stat-value">${activity.distance}</span>
-                                            <span class="stat-label">kilometer</span>
-                                        </div>
-                                    </div>
-                                    <div class="stat-item">
-                                        <span class="material-icons">timer</span>
-                                        <div class="stat-details">
-                                            <span class="stat-value">${activity.time}</span>
-                                            <span class="stat-label">timmar</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `).join('');
             
+            // Handle legacy stats format
             statsSection.innerHTML = `
                 <div class="strava-header">
                     <h1 class="section-title">Min Statistik</h1>
@@ -189,11 +155,51 @@
                     </div>
                 </div>
                 <div class="strava-stats-grid">
-                    ${statsContent}
+                    <div class="stats-card elevation-2">
+                        <h3>Denna vecka</h3>
+                        <div class="stats-content">
+                            <div class="stat-item">
+                                <span class="material-icons">directions_run</span>
+                                <div class="stat-details">
+                                    <span class="stat-value">${stats.weeklyDistance || 0}</span>
+                                    <span class="stat-label">kilometer</span>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="material-icons">timer</span>
+                                <div class="stat-details">
+                                    <span class="stat-value">${Math.round((stats.weeklyTime || 0) / 3600)}</span>
+                                    <span class="stat-label">timmar</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats-card elevation-2">
+                        <h3>Denna månad</h3>
+                        <div class="stats-content">
+                            <div class="stat-item">
+                                <span class="material-icons">directions_run</span>
+                                <div class="stat-details">
+                                    <span class="stat-value">${stats.monthlyDistance || 0}</span>
+                                    <span class="stat-label">kilometer</span>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="material-icons">group</span>
+                                <div class="stat-details">
+                                    <span class="stat-value">${stats.monthlyParticipants || 0}</span>
+                                    <span class="stat-label">aktiva löpare</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `;
         } catch (error) {
             console.error('Failed to load stats:', error);
+            const statsSection = document.getElementById('statsSection');
+            statsSection.innerHTML = '<p>Kunde inte ladda statistik</p>';
         }
     }
 

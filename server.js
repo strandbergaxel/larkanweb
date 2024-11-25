@@ -163,7 +163,7 @@ app.get('/api/strava/club-events', async (req, res) => {
 
 // Add this route before your other routes
 app.get('/statistics', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/statistics.html'));
+    res.sendFile(path.join(__dirname, '../larkan-website/public/statistics.html'));
 });
 
 // Define routes for HTML pages
@@ -172,7 +172,7 @@ const routes = {
     '/about': 'about.html',
     '/events': 'events.html',
     '/join': 'join.html',
-    '/strava-data': 'strava-data.html'
+    '/statistics': 'statistics.html'
 };
 
 // Handle defined routes
