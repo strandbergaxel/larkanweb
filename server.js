@@ -4,18 +4,118 @@ require('dotenv').config({ path: path.join(__dirname, '.env.local') });
 const nodemailer = require('nodemailer');
 const stravaRoutes = require('./src/routes/strava');
 const session = require('express-session');
+const bodyParser = require('body-parser');
 
 const app = express();
 
-// Add these lines before your routes
+// 1. First, all your middleware
 app.use(express.json());
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    console.log('Headers:', req.headers);
+    if (req.body) console.log('Body:', req.body);
+    next();
+});
+
+// 2. Define routes for HTML pages
+const routes = {
+    '/': 'index.html',
+    '/about': 'about.html',
+    '/events': 'events.html',
+    '/join': 'join.html',
+    '/statistics': 'statistics.html'
+};
+
+// 3. Then, all your API routes
+app.post('/api/join', async (req, res) => {
+    try {
+        const { name, email, phone } = req.body;
+        
+        if (!name || !email) {
+            return res.status(400).json({ 
+                error: 'Namn och e-post krävs'
+            });
+        }
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASSWORD
+            }
+        });
+
+        // Email to admin
+        const adminMailOptions = {
+            from: process.env.EMAIL_USER,
+            to: 'idrottssallskapetlarkan@gmail.com',
+            subject: 'Ny medlemsansökan - IS Lärkan',
+            html: `
+                <h2>Ny medlemsansökan</h2>
+                <p><strong>Namn:</strong> ${name}</p>
+                <p><strong>E-post:</strong> ${email}</p>
+                <p><strong>Telefon:</strong> ${phone || 'Ej angivet'}</p>
+            `
+        };
+
+        // Auto-reply to applicant
+        const applicantMailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Välkommen till IS Lärkan',
+            html: `
+                <h2>Tack för din ansökan, ${name}!</h2>
+                <p>Vi har mottagit din medlemsansökan till IS Lärkan. Vi kommer att kontakta dig inom kort med mer information om hur du kommer igång som medlem.</p>
+                <p>Under tiden kan du:</p>
+                <ul>
+                    <li>Gå med i vår Strava-klubb: <a href="https://www.strava.com/clubs/1172487">IS Lärkan på Strava</a></li>
+                    <li>Följ oss på Instagram: <a href="https://www.instagram.com/is_larkan">@is_larkan</a></li>
+                </ul>
+                <p>Har du frågor? Svara gärna på detta mail!</p>
+                <br>
+                <p>Med vänliga hälsningar,<br>IS Lärkan</p>
+            `
+        };
+
+        await transporter.sendMail(adminMailOptions);
+        await transporter.sendMail(applicantMailOptions);
+
+        res.status(200).json({ message: 'Ansökan mottagen' });
+
+    } catch (error) {
+        res.status(500).json({ error: 'Ett fel uppstod vid hantering av ansökan' });
+    }
+});
 
 app.use('/api/strava', stravaRoutes);
 
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
+// 4. Then, your static page routes
+Object.entries(routes).forEach(([route, file]) => {
+    app.get(route, (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', file), (err) => {
+            if (err) {
+                console.error(`Error sending file ${file}:`, err);
+                res.status(404).send('Page not found');
+            }
+        });
+    });
+});
+
+// 5. Finally, your 404 handler and catch-all routes
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'), (err) => {
+        if (err) {
+            res.status(404).send('Page not found');
+        }
+    });
+});
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // Add CORS headers for development
 app.use((req, res, next) => {
@@ -162,36 +262,6 @@ app.get('/api/strava/club-events', async (req, res) => {
     }
 });
 
-// Define routes for HTML pages
-const routes = {
-    '/': 'index.html',
-    '/about': 'about.html',
-    '/events': 'events.html',
-    '/join': 'join.html',
-    '/statistics': 'statistics.html'
-};
-
-// Handle defined routes
-Object.entries(routes).forEach(([route, file]) => {
-    app.get(route, (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', file), (err) => {
-            if (err) {
-                console.error(`Error sending file ${file}:`, err);
-                res.status(404).send('Page not found');
-            }
-        });
-    });
-});
-
-// Handle 404s for undefined routes
-app.use((req, res) => {
-    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'), (err) => {
-        if (err) {
-            res.status(404).send('Page not found');
-        }
-    });
-});
-
 app.get('/api/strava/callback', async (req, res) => {
     try {
         const fetch = (await import('node-fetch')).default;
@@ -232,68 +302,6 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Add this near the top to verify the endpoint is registered
-console.log('Setting up /api/join endpoint');
-
-// Membership application endpoint
-app.post('/api/join', async (req, res) => {
-    console.log('Received join request');
-    console.log('Request body:', req.body);
-    
-    try {
-        const { name, email, phone } = req.body;
-        
-        if (!name || !email) {
-            return res.status(400).json({ error: 'Name and email are required' });
-        }
-
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'idrottssallskapetlarkan@gmail.com',
-                pass: process.env.EMAIL_PASSWORD
-            }
-        });
-
-        const mailOptions = {
-            from: 'idrottssallskapetlarkan@gmail.com',
-            to: 'idrottssallskapetlarkan@gmail.com',
-            subject: 'Ny medlemsansökan - IS Lärkan',
-            html: `
-                <h2>Ny medlemsansökan från hemsidan</h2>
-                <p><strong>Namn:</strong> ${name}</p>
-                <p><strong>E-post:</strong> ${email}</p>
-                ${phone ? `<p><strong>Telefon:</strong> ${phone}</p>` : ''}
-                <p><em>Skickat: ${new Date().toLocaleString('sv-SE')}</em></p>
-            `
-        };
-
-        await transporter.sendMail(mailOptions);
-        
-        const autoReplyOptions = {
-            from: 'idrottssallskapetlarkan@gmail.com',
-            to: email,
-            subject: 'Tack för din ansökan till IS Lärkan',
-            html: `
-                <h2>Tack för din ansökan!</h2>
-                <p>Hej ${name},</p>
-                <p>Vi har mottagit din medlemsansökan och återkommer till dig inom kort.</p>
-                <br>
-                <p>Med vänliga hälsningar,</p>
-                <p>IS Lärkan</p>
-            `
-        };
-
-        await transporter.sendMail(autoReplyOptions);
-
-        res.status(200).json({ message: 'Application received' });
-    } catch (error) {
-        console.error('Error processing application:', error);
-        res.status(500).json({ error: 'Failed to process application' });
-    }
-});
-
-// Add this test endpoint
 app.get('/api/test-email', async (req, res) => {
     try {
         console.log('Testing email configuration...');
@@ -364,9 +372,6 @@ app.get('/api/strava/club-stats', async (req, res) => {
     }
 });
 
-// Mount the Strava routes
-app.use('/api/strava', stravaRoutes);
-
 // Configure session middleware
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
@@ -383,18 +388,4 @@ app.use(session({
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-    console.log('Available routes:', Object.keys(routes));
-    console.log('Environment variables loaded:', {
-        STRAVA_CLIENT_ID: process.env.STRAVA_CLIENT_ID ? 'Set' : 'Not set',
-        STRAVA_CLIENT_SECRET: process.env.STRAVA_CLIENT_SECRET ? 'Set' : 'Not set',
-        STRAVA_CLUB_ID: process.env.STRAVA_CLUB_ID ? 'Set' : 'Not set'
-    });
-});
-
-// Add this check at startup
-console.log('Environment check on startup:', {
-    STRAVA_CLIENT_ID: process.env.STRAVA_CLIENT_ID,
-    STRAVA_CLIENT_SECRET: process.env.STRAVA_CLIENT_SECRET ? 'Set' : 'Not set',
-    STRAVA_REFRESH_TOKEN: process.env.STRAVA_REFRESH_TOKEN ? 'Set' : 'Not set',
-    STRAVA_CLUB_ID: process.env.STRAVA_CLUB_ID
 });

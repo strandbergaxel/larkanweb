@@ -8,19 +8,36 @@ env_variables:
   STRAVA_REFRESH_TOKEN: "66a8df403c5fa56162954c1ba54e51c9ba1c93b1"
   STRAVA_REDIRECT_URI: "https://larkan-website.uc.r.appspot.com/api/strava/callback"
   SESSION_SECRET: "e7571376a285799fcc662cc13f59137863d8b73d2563b7c0110576f0b13ddc3487933d40f446fd20d1dd8f2ef6c6c8e58d6aeccb111994e7ae30838b944ce99a"
+  EMAIL_USER: "idrottssallskapetlarkan@gmail.com"
+  EMAIL_PASSWORD: "aaimyfubmoefesqp"
 
 handlers:
-  # Serve static files
-  - url: /(.+\.(gif|png|jpg|css|js|ico))$
+  # API routes must come first
+  - url: /api/.*
+    script: auto
+    secure: always
+
+  # Static assets
+  - url: /(.*\.(gif|png|jpg|css|js|ico))$
     static_files: public/\1
     upload: public/.*\.(gif|png|jpg|css|js|ico)$
 
-  # Serve the API endpoints
-  - url: /api/.*
-    script: auto
+  # HTML files
+  - url: /(.*\.html)$
+    static_files: public/\1
+    upload: public/.*\.html$
 
-  # All other routes
+  # Main routes
+  - url: /(about|events|join|statistics)
+    static_files: public/\1.html
+    upload: public/.*\.html$
+
+  # Root path
+  - url: /
+    static_files: public/index.html
+    upload: public/index.html
+
+  # All other requests go to the Node.js app
   - url: /.*
     script: auto
     secure: always
-    redirect_http_response_code: 301

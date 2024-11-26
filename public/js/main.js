@@ -87,4 +87,30 @@ document.querySelectorAll('.feature-card, .event-card').forEach(card => {
     card.addEventListener('mouseleave', function() {
         this.style.transform = 'translateY(0)';
     });
+});
+
+// Mobile menu functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const hamburger = document.querySelector('.hamburger-menu');
+    const sideMenu = document.querySelector('.side-menu');
+    const closeMenu = document.querySelector('.close-menu');
+    const overlay = document.createElement('div');
+    overlay.classList.add('menu-overlay');
+    document.body.appendChild(overlay);
+
+    function toggleMenu() {
+        sideMenu.classList.toggle('active');
+        document.body.classList.toggle('menu-open');
+        overlay.classList.toggle('active');
+    }
+
+    hamburger.addEventListener('click', toggleMenu);
+    closeMenu.addEventListener('click', toggleMenu);
+    overlay.addEventListener('click', toggleMenu);
+
+    // Close menu when clicking a link
+    const menuLinks = document.querySelectorAll('.side-menu-links a');
+    menuLinks.forEach(link => {
+        link.addEventListener('click', toggleMenu);
+    });
 }); 

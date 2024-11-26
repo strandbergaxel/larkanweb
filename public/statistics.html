@@ -97,6 +97,9 @@
             <a href="/" class="logo">
                 <img src="/images/larkan-logo.png" alt="IS Lärkan Logo">
             </a>
+            <button class="hamburger-menu" aria-label="Meny">
+                <span class="material-icons">menu</span>
+            </button>
             <div class="nav-links">
                 <a href="/">Hem</a>
                 <a href="/about">Om oss</a>
@@ -106,6 +109,22 @@
             </div>
         </div>
     </nav>
+
+    <div class="side-menu">
+        <div class="side-menu-header">
+            <img src="/images/larkan-logo.png" alt="IS Lärkan Logo">
+            <button class="close-menu" aria-label="Stäng meny">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        <nav class="side-menu-links">
+            <a href="/">Hem</a>
+            <a href="/about">Om oss</a>
+            <a href="/events">Evenemang</a>
+            <a href="/join">Bli medlem</a>
+            <a href="/statistics">Statistik</a>
+        </nav>
+    </div>
 
     <main class="strava-page">
         <div class="container">
@@ -219,7 +238,7 @@
             activitiesList.innerHTML = activities.map(activity => `
                 <div class="activity-item">
                     <div class="activity-icon">
-                        <span class="material-icons">directions_run</span>
+                        <span class="material-icons">fitness_center</span>
                     </div>
                     <div class="activity-details">
                         <h4>${activity.name}</h4>

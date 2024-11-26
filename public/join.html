@@ -20,6 +20,9 @@
             <a href="/" class="logo">
                 <img src="/images/larkan-logo.png" alt="IS Lärkan Logo">
             </a>
+            <button class="hamburger-menu" aria-label="Meny">
+                <span class="material-icons">menu</span>
+            </button>
             <div class="nav-links">
                 <a href="/">Hem</a>
                 <a href="/about">Om oss</a>
@@ -29,6 +32,22 @@
             </div>
         </div>
     </nav>
+
+    <div class="side-menu">
+        <div class="side-menu-header">
+            <img src="/images/larkan-logo.png" alt="IS Lärkan Logo">
+            <button class="close-menu" aria-label="Stäng meny">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        <nav class="side-menu-links">
+            <a href="/">Hem</a>
+            <a href="/about">Om oss</a>
+            <a href="/events">Evenemang</a>
+            <a href="/join">Bli medlem</a>
+            <a href="/statistics">Statistik</a>
+        </nav>
+    </div>
 
     <main>
         <section class="hero">
@@ -40,48 +59,98 @@
             </div>
         </section>
 
+        <section class="membership-info">
+            <div class="container">
+                <div class="info-grid">
+                    <div class="info-card">
+                        <span class="material-icons">group</span>
+                        <h3>Gemenskap</h3>
+                        <p>Som medlem blir du del av en aktiv gemenskap där vi tränar, tävlar och utvecklas tillsammans.</p>
+                    </div>
+                    <div class="info-card">
+                        <span class="material-icons">event</span>
+                        <h3>Evenemang</h3>
+                        <p>Delta i våra veckoträningar, tävlingar och sociala aktiviteter. Vi har något för alla nivåer.</p>
+                    </div>
+                    <div class="info-card">
+                        <span class="material-icons">card_membership</span>
+                        <h3>Medlemskap</h3>
+                        <p>Medlemskapet är kostnadsfritt under 2024. Vi fokuserar på att bygga en stark gemenskap tillsammans.</p>
+                    </div>
+                </div>
+                
+                <div class="membership-details">
+                    <h2>Om medlemskapet</h2>
+                    <p>IS Lärkan välkomnar alla som vill vara del av en aktiv idrottsgemenskap i Stockholm. Som medlem får du:</p>
+                    <ul class="benefits-list">
+                        <li>Delta i våra organiserade träningar och evenemang</li>
+                        <li>Tillgång till vår Strava-klubb med statistik och aktiviteter</li>
+                        <li>Möjlighet att representera IS Lärkan i tävlingar</li>
+                        <li>Inbjudningar till sociala aktiviteter</li>
+                        <li>Vara med och forma föreningens framtid</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
         <section class="membership-form">
             <div class="container">
-                <form id="joinForm" class="form-card">
-                    <div class="input-group">
-                        <input type="text" 
-                               id="name" 
-                               class="input-field" 
-                               placeholder=" "
-                               required
-                               pattern="[A-Za-zÀ-ÖØ-öø-ÿ\s]{2,50}"
-                        >
-                        <label for="name" class="input-label">Namn</label>
-                        <div class="validation-message"></div>
+                <div class="form-wrapper">
+                    <div class="form-intro">
+                        <h2>Ansök om medlemskap</h2>
+                        <p>Fyll i formuläret nedan så återkommer vi inom kort med mer information om hur du kommer igång som medlem i IS Lärkan.</p>
+                        <div class="form-note">
+                            <span class="material-icons">info</span>
+                            <p>Efter din ansökan skickar vi ett välkomstmail med praktisk information om föreningen och hur du ansluter till vår Strava-klubb.</p>
+                        </div>
                     </div>
+                    
+                    <form id="joinForm" class="form-card">
+                        <div class="input-group">
+                            <input type="text" 
+                                   id="name" 
+                                   class="input-field" 
+                                   placeholder=" "
+                                   required
+                                   pattern="[A-Za-zÀ-ÖØ-öø-ÿ\s]{2,50}"
+                            >
+                            <label for="name" class="input-label">Namn</label>
+                            <div class="validation-message"></div>
+                        </div>
 
-                    <div class="input-group">
-                        <input type="email" 
-                               id="email" 
-                               class="input-field" 
-                               placeholder=" "
-                               required
-                        >
-                        <label for="email" class="input-label">E-post</label>
-                        <div class="validation-message"></div>
+                        <div class="input-group">
+                            <input type="email" 
+                                   id="email" 
+                                   class="input-field" 
+                                   placeholder=" "
+                                   required
+                            >
+                            <label for="email" class="input-label">E-post</label>
+                            <div class="validation-message"></div>
+                        </div>
+
+                        <div class="input-group">
+                            <input type="tel" 
+                                   id="phone" 
+                                   class="input-field" 
+                                   placeholder=" "
+                                   pattern="[0-9+\s-]{6,}"
+                            >
+                            <label for="phone" class="input-label">Telefon (valfritt)</label>
+                            <div class="validation-message"></div>
+                        </div>
+
+                        <button type="submit" class="submit-button">
+                            <span class="button-text">Skicka ansökan</span>
+                            <span class="material-icons">arrow_forward</span>
+                            <div class="button-loader"></div>
+                        </button>
+                    </form>
+                    
+                    <div class="form-footer">
+                        <p>Har du frågor? Kontakta oss på <a href="mailto:idrottssallskapetlarkan@gmail.com">idrottssallskapetlarkan@gmail.com</a></p>
                     </div>
-
-                    <div class="input-group">
-                        <input type="tel" 
-                               id="phone" 
-                               class="input-field" 
-                               placeholder=" "
-                               pattern="[0-9+\s-]{6,}"
-                        >
-                        <label for="phone" class="input-label">Telefon (valfritt)</label>
-                        <div class="validation-message"></div>
-                    </div>
-
-                    <button type="submit" class="button primary">
-                        <span class="button-text">Skicka ansökan</span>
-                        <div class="button-loader"></div>
-                    </button>
-                </form>
+                </div>
             </div>
         </section>
     </main>
@@ -89,25 +158,25 @@
     <script>
         document.getElementById('joinForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            console.log('Form submitted');
             
-            const button = this.querySelector('button[type="submit"]');
+            const button = this.querySelector('.submit-button');
             const buttonText = button.querySelector('.button-text');
             const originalText = buttonText.textContent;
             
             try {
-                // Show loading state
+                console.log('Form submission started');
                 button.disabled = true;
                 button.classList.add('loading');
                 buttonText.textContent = 'Skickar...';
 
                 const formData = {
-                    name: document.getElementById('name').value,
-                    email: document.getElementById('email').value,
-                    phone: document.getElementById('phone').value
+                    name: document.getElementById('name').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    phone: document.getElementById('phone').value.trim()
                 };
-
-                console.log('Sending data:', formData);
+                
+                console.log('Form data:', formData);
+                console.log('Sending request to:', '/api/join');
 
                 const response = await fetch('/api/join', {
                     method: 'POST',
@@ -117,16 +186,18 @@
                     body: JSON.stringify(formData)
                 });
 
-                console.log('Response:', response.status);
+                console.log('Response status:', response.status);
+                console.log('Response headers:', Object.fromEntries(response.headers));
+
+                const responseData = await response.text();
+                console.log('Response body:', responseData);
 
                 if (!response.ok) {
-                    throw new Error('Något gick fel');
+                    throw new Error(`Server responded with ${response.status}: ${responseData}`);
                 }
 
-                const responseData = await response.json();
-                console.log('Response data:', responseData);
-
                 // Show success message
+                console.log('Form submission successful');
                 button.classList.remove('loading');
                 button.classList.add('success');
                 buttonText.textContent = 'Ansökan skickad!';
@@ -140,7 +211,12 @@
                 }, 3000);
 
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Detailed error:', {
+                    message: error.message,
+                    stack: error.stack,
+                    error: error
+                });
+                
                 button.classList.remove('loading');
                 button.classList.add('error');
                 buttonText.textContent = 'Något gick fel';
