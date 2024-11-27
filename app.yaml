@@ -17,25 +17,44 @@ handlers:
     script: auto
     secure: always
 
-  # Static assets
-  - url: /(.*\.(gif|png|jpg|css|js|ico))$
+  # CSS files
+  - url: /css
+    static_dir: public/css
+    secure: always
+
+  # Images
+  - url: /images
+    static_dir: public/images
+    secure: always
+
+  # JavaScript files
+  - url: /js
+    static_dir: public/js
+    secure: always
+
+  # Other static assets
+  - url: /(.*\.(gif|png|jpg|css|js|ico|json))$
     static_files: public/\1
-    upload: public/.*\.(gif|png|jpg|css|js|ico)$
+    upload: public/.*\.(gif|png|jpg|css|js|ico|json)$
+    secure: always
 
   # HTML files
   - url: /(.*\.html)$
     static_files: public/\1
     upload: public/.*\.html$
+    secure: always
 
   # Main routes
   - url: /(about|events|join|statistics)
     static_files: public/\1.html
     upload: public/.*\.html$
+    secure: always
 
   # Root path
   - url: /
     static_files: public/index.html
     upload: public/index.html
+    secure: always
 
   # All other requests go to the Node.js app
   - url: /.*

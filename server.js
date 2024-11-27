@@ -90,7 +90,89 @@ app.post('/api/join', async (req, res) => {
     }
 });
 
+// Strava routes
 app.use('/api/strava', stravaRoutes);
+
+// Direct Strava endpoints in main server file
+app.get('/api/strava/all-events', async (req, res) => {
+    try {
+        const fetch = (await import('node-fetch')).default;
+        const accessToken = await getStravaAccessToken(fetch);
+        const clubId = process.env.STRAVA_CLUB_ID;
+        
+        const response = await fetch(
+            `https://www.strava.com/api/v3/clubs/${clubId}/group_events`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Strava API error: ${response.status}`);
+        }
+
+        const events = await response.json();
+        
+        const processedEvents = events.map(event => ({
+            ...event,
+            start_date: event.upcoming_occurrences?.[0] || event.start_date
+        }));
+
+        const sortedEvents = processedEvents.sort((a, b) => 
+            new Date(b.start_date) - new Date(a.start_date)
+        );
+
+        res.json(sortedEvents);
+
+    } catch (error) {
+        console.error('Error fetching club events:', error);
+        res.status(500).json({ error: 'Failed to fetch club events', details: error.message });
+    }
+});
+
+app.get('/api/strava/club-events', async (req, res) => {
+    try {
+        const fetch = (await import('node-fetch')).default;
+        console.log('Fetching upcoming club events...');
+        const accessToken = await getStravaAccessToken(fetch);
+        const clubId = process.env.STRAVA_CLUB_ID;
+        
+        const response = await fetch(
+            `https://www.strava.com/api/v3/clubs/${clubId}/group_events`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Strava API error: ${response.status}`);
+        }
+
+        const events = await response.json();
+        
+        // Process events to use the first upcoming occurrence if available
+        const processedEvents = events.map(event => ({
+            ...event,
+            start_date: event.upcoming_occurrences?.[0] || event.start_date
+        }));
+
+        // Filter for upcoming events and sort by date
+        const now = new Date();
+        const upcomingEvents = processedEvents
+            .filter(event => new Date(event.start_date) > now)
+            .sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+
+        res.json(upcomingEvents[0] || null);
+
+    } catch (error) {
+        console.error('Error fetching club events:', error);
+        res.status(500).json({ error: 'Failed to fetch club events', details: error.message });
+    }
+});
 
 // 4. Then, your static page routes
 Object.entries(routes).forEach(([route, file]) => {
@@ -134,22 +216,12 @@ async function getStravaAccessToken(fetch) {
             return cachedToken;
         }
 
-        // Log the values being used
-        console.log('Using Strava credentials:', {
-            clientId: process.env.STRAVA_CLIENT_ID,
-            clientIdType: typeof process.env.STRAVA_CLIENT_ID,
-            hasSecret: !!process.env.STRAVA_CLIENT_SECRET,
-            hasRefreshToken: !!process.env.STRAVA_REFRESH_TOKEN
-        });
-
         const body = {
-            client_id: parseInt(process.env.STRAVA_CLIENT_ID, 10), // Convert to number
+            client_id: parseInt(process.env.STRAVA_CLIENT_ID, 10),
             client_secret: process.env.STRAVA_CLIENT_SECRET,
             grant_type: 'refresh_token',
             refresh_token: process.env.STRAVA_REFRESH_TOKEN
         };
-
-        console.log('Request body:', body);
 
         const response = await fetch('https://www.strava.com/oauth/token', {
             method: 'POST',
@@ -160,18 +232,15 @@ async function getStravaAccessToken(fetch) {
         });
 
         if (!response.ok) {
-            const errorData = await response.text();
-            throw new Error(`Token request failed: ${response.status}, ${errorData}`);
+            throw new Error(`Token request failed: ${response.status}`);
         }
 
         const data = await response.json();
         cachedToken = data.access_token;
         tokenExpiration = Date.now() + (data.expires_in - 300) * 1000;
-        console.log('New token acquired');
         
         return cachedToken;
     } catch (error) {
-        console.error('Error getting Strava token:', error);
         throw error;
     }
 }
@@ -180,7 +249,6 @@ async function getStravaAccessToken(fetch) {
 app.get('/api/strava/all-events', async (req, res) => {
     try {
         const fetch = (await import('node-fetch')).default;
-        console.log('Fetching all club events...');
         const accessToken = await getStravaAccessToken(fetch);
         const clubId = process.env.STRAVA_CLUB_ID;
         
@@ -198,7 +266,6 @@ app.get('/api/strava/all-events', async (req, res) => {
         }
 
         const events = await response.json();
-        console.log(`Found ${events.length} events`);
         
         // Process events to use the first upcoming occurrence if available
         const processedEvents = events.map(event => ({
@@ -206,7 +273,7 @@ app.get('/api/strava/all-events', async (req, res) => {
             start_date: event.upcoming_occurrences?.[0] || event.start_date
         }));
 
-        // Sort all events by date (newest first)
+        // Include both upcoming and past events
         const sortedEvents = processedEvents.sort((a, b) => 
             new Date(b.start_date) - new Date(a.start_date)
         );

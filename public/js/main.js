@@ -34,27 +34,6 @@ document.querySelectorAll('.stat-number').forEach(stat => {
     animateValue(stat, 0, finalValue, 2000);
 });
 
-// Mobile Menu
-const mobileMenuButton = document.querySelector('.mobile-menu-button');
-const mobileMenu = document.querySelector('.mobile-menu');
-const mobileMenuClose = document.querySelector('.mobile-menu-close');
-
-// Wait for DOM to be fully loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Only add event listeners if elements exist
-    if (mobileMenuButton) {
-        mobileMenuButton.addEventListener('click', function() {
-            mobileMenu.classList.add('active');
-        });
-    }
-
-    if (mobileMenuClose) {
-        mobileMenuClose.addEventListener('click', function() {
-            mobileMenu.classList.remove('active');
-        });
-    }
-});
-
 // Parallax Effect
 window.addEventListener('scroll', () => {
     const scrolled = window.pageYOffset;
@@ -86,31 +65,5 @@ document.querySelectorAll('.feature-card, .event-card').forEach(card => {
     
     card.addEventListener('mouseleave', function() {
         this.style.transform = 'translateY(0)';
-    });
-});
-
-// Mobile menu functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const hamburger = document.querySelector('.hamburger-menu');
-    const sideMenu = document.querySelector('.side-menu');
-    const closeMenu = document.querySelector('.close-menu');
-    const overlay = document.createElement('div');
-    overlay.classList.add('menu-overlay');
-    document.body.appendChild(overlay);
-
-    function toggleMenu() {
-        sideMenu.classList.toggle('active');
-        document.body.classList.toggle('menu-open');
-        overlay.classList.toggle('active');
-    }
-
-    hamburger.addEventListener('click', toggleMenu);
-    closeMenu.addEventListener('click', toggleMenu);
-    overlay.addEventListener('click', toggleMenu);
-
-    // Close menu when clicking a link
-    const menuLinks = document.querySelectorAll('.side-menu-links a');
-    menuLinks.forEach(link => {
-        link.addEventListener('click', toggleMenu);
     });
 }); 
