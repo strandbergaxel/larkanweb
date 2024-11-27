@@ -1,5 +1,5 @@
 // Wait for the DOM to be fully loaded
-ocument.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
     // Get menu elements
     const hamburger = document.querySelector('.hamburger-menu');
     const sideMenu = document.querySelector('.side-menu');
