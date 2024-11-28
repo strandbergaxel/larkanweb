@@ -25,9 +25,9 @@
             </button>
             <div class="nav-links">
                 <a href="/">Hem</a>
-                <a href="/about" class="nav-highlight">Om oss</a>
+                <a href="/about">Om oss</a>
                 <a href="/events">Evenemang</a>
-                <a href="/join">Bli medlem</a>
+                <a href="/membership">Medlemskap</a>
                 <a href="/statistics">Statistik</a>
             </div>
         </div>
@@ -44,7 +44,7 @@
             <a href="/">Hem</a>
             <a href="/about">Om oss</a>
             <a href="/events">Evenemang</a>
-            <a href="/join">Bli medlem</a>
+            <a href="/membership">Medlemskap</a>
             <a href="/statistics">Statistik</a>
         </nav>
     </div>
@@ -67,6 +67,20 @@
                 </div>
             </div>
         </section>
+
+        <section class="members-section">
+            <div class="container">
+                <h2 class="section-title">Våra medlemmar</h2>
+                <p class="section-subtitle">Tillsammans är vi IS Lärkan</p>
+                
+                <div class="members-grid" id="membersGrid">
+                    <!-- Members will be loaded here -->
+                    <div class="loading-spinner">
+                        <span class="material-icons rotating">refresh</span>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <script src="/js/menu.js"></script>
@@ -77,6 +91,161 @@
             .then(data => {
                 document.body.insertAdjacentHTML('beforeend', data);
             });
+    </script>
+
+    <style>
+        .members-section {
+            padding: 4rem 0;
+            background: #f5f5f5;
+        }
+
+        .section-title {
+            text-align: center;
+            color: var(--larkan-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 3rem;
+        }
+
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2rem;
+            padding: 1rem;
+        }
+
+        .member-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-1);
+            transition: transform 0.2s ease;
+        }
+
+        .member-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .member-image {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            background: #eee;
+        }
+
+        .member-info {
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .member-name {
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .loading-spinner {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .rotating {
+            animation: rotate 1s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .members-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+        }
+
+        .member-status {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            margin-top: 0.25rem;
+            display: inline-block;
+        }
+
+        .member-status.member {
+            background: #e8f5e9;
+            color: var(--larkan-green);
+        }
+
+        .member-status.admin {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .member-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+    </style>
+
+    <script>
+        async function loadMembers() {
+            try {
+                const response = await fetch('/api/strava/club-members');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch members');
+                }
+                
+                const members = await response.json();
+                const membersGrid = document.getElementById('membersGrid');
+                
+                if (members.length === 0) {
+                    membersGrid.innerHTML = '<p class="no-members">Inga medlemmar att visa</p>';
+                    return;
+                }
+
+                // Sort members: founders first, then members, both sorted by firstname
+                const sortedMembers = members.sort((a, b) => {
+                    // First compare by admin status (founders come before members)
+                    if (a.admin && !b.admin) return -1;
+                    if (!a.admin && b.admin) return 1;
+                    
+                    // Then sort alphabetically by firstname
+                    return a.firstname.localeCompare(b.firstname, 'sv');
+                });
+
+                membersGrid.innerHTML = sortedMembers
+                    .map(member => `
+                        <div class="member-card">
+                            <span class="material-icons default-profile">account_circle</span>
+                            <div class="member-info">
+                                <h3 class="member-name">${member.firstname} ${member.lastname}</h3>
+                                <span class="member-status ${member.admin ? 'admin' : 'member'}">
+                                    ${member.admin ? 'Grundare' : 'Medlem'}
+                                </span>
+                            </div>
+                        </div>
+                    `)
+                    .join('');
+
+            } catch (error) {
+                console.error('Error loading members:', error);
+                document.getElementById('membersGrid').innerHTML = 
+                    '<p class="error-message">Kunde inte ladda medlemmar</p>';
+            }
+        }
+
+        // Load members when the page loads
+        loadMembers();
     </script>
 </body>
 </html>
