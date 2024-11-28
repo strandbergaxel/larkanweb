@@ -2,6 +2,7 @@ const express = require('express');
 const session = require('express-session');
 const path = require('path');
 const stravaApi = require('../services/stravaApi');
+const { getStravaAccessToken } = require('../utils/stravaUtils');
 
 const router = express.Router();
 
@@ -179,12 +180,12 @@ function calculateTrend(previous, current) {
 // Update the club stats route with better error handling and logging
 router.get('/club-stats', async (req, res) => {
     try {
+        const fetch = (await import('node-fetch')).default;
+        const accessToken = await getStravaAccessToken(fetch);
         const clubId = process.env.STRAVA_CLUB_ID;
-        const accessToken = await getAccessToken();
         
-        // Fetch club members
-        const membersResponse = await fetch(
-            `https://www.strava.com/api/v3/clubs/${clubId}/members`,
+        const response = await fetch(
+            `https://www.strava.com/api/v3/clubs/${clubId}/stats`,
             {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
@@ -192,60 +193,14 @@ router.get('/club-stats', async (req, res) => {
             }
         );
 
-        if (!membersResponse.ok) {
-            throw new Error('Failed to fetch club members');
+        if (!response.ok) {
+            throw new Error(`Strava API error: ${response.status}`);
         }
 
-        const members = await membersResponse.json();
-        console.log(`Club has ${members.length} members`);
-
-        // Fetch activities for distance stats
-        const activitiesResponse = await fetch(
-            `https://www.strava.com/api/v3/clubs/${clubId}/activities`,
-            {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            }
-        );
-
-        if (!activitiesResponse.ok) {
-            throw new Error('Failed to fetch club activities');
-        }
-
-        const activities = await activitiesResponse.json();
-
-        const stats = activities.reduce((acc, activity) => {
-            if (activity.type !== 'Run') return acc;
-            
-            acc.weeklyDistance += activity.distance / 1000;
-            acc.monthlyDistance += activity.distance / 1000;
-
-            return acc;
-        }, {
-            weeklyDistance: 0,
-            monthlyDistance: 0
-        });
-
-        const statsResponse = {
-            weeklyDistance: Math.round(stats.weeklyDistance * 10) / 10,
-            monthlyDistance: Math.round(stats.monthlyDistance * 10) / 10,
-            memberCount: members.length
-        };
-
-        console.log('Final stats:', statsResponse);
-        res.json(statsResponse);
-
+        const stats = await response.json();
+        res.json(stats);
     } catch (error) {
-        console.error('Club stats error:', error);
-        res.status(500).json({ 
-            error: error.message,
-            fallback: {
-                weeklyDistance: 0,
-                monthlyDistance: 0,
-                memberCount: 0
-            }
-        });
+        res.status(500).json({ error: 'Failed to fetch club stats' });
     }
 });
 
@@ -475,6 +430,32 @@ router.get('/stats', async (req, res) => {
     } catch (error) {
         console.error('Failed to fetch stats:', error);
         res.status(500).json({ error: 'Failed to fetch stats' });
+    }
+});
+
+router.get('/club-members', async (req, res) => {
+    try {
+        const fetch = (await import('node-fetch')).default;
+        const accessToken = await getStravaAccessToken(fetch);
+        const clubId = process.env.STRAVA_CLUB_ID;
+        
+        const response = await fetch(
+            `https://www.strava.com/api/v3/clubs/${clubId}/members`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Strava API error: ${response.status}`);
+        }
+
+        const members = await response.json();
+        res.json(members);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch club members' });
     }
 });
 

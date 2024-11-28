@@ -13,19 +13,13 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-    console.log('Headers:', req.headers);
-    if (req.body) console.log('Body:', req.body);
-    next();
-});
 
 // 2. Define routes for HTML pages
 const routes = {
     '/': 'index.html',
     '/about': 'about.html',
     '/events': 'events.html',
-    '/join': 'join.html',
+    '/membership': 'membership.html',
     '/statistics': 'statistics.html'
 };
 

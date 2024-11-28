@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bli Medlem - IS Lärkan</title>
+    <title>Medlemskap - IS Lärkan</title>
     
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -13,6 +13,82 @@
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/animations.css">
+
+    <style>
+        .career-path {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: var(--shadow-2);
+        }
+
+        .career-path h2 {
+            color: var(--larkan-green);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .requirements-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+
+        .requirements-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .requirements-list li::before {
+            content: "•";
+            color: var(--larkan-green);
+            position: absolute;
+            left: 0.5rem;
+        }
+
+        .career-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .level-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-1);
+            transition: transform 0.2s ease;
+        }
+
+        .level-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .level-card h3 {
+            color: var(--larkan-green);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .level-description {
+            margin-bottom: 1rem;
+            color: #666;
+        }
+
+        .join-form-section {
+            margin-bottom: 4rem;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -27,7 +103,7 @@
                 <a href="/">Hem</a>
                 <a href="/about">Om oss</a>
                 <a href="/events">Evenemang</a>
-                <a href="/join" class="nav-highlight">Bli medlem</a>
+                <a href="/membership">Medlemskap</a>
                 <a href="/statistics">Statistik</a>
             </div>
         </div>
@@ -44,7 +120,7 @@
             <a href="/">Hem</a>
             <a href="/about">Om oss</a>
             <a href="/events">Evenemang</a>
-            <a href="/join">Bli medlem</a>
+            <a href="/membership">Medlemskap</a>
             <a href="/statistics">Statistik</a>
         </nav>
     </div>
@@ -54,8 +130,8 @@
             <div class="hero-background"></div>
             <div class="hero-overlay"></div>
             <div class="hero-content">
-                <h1>Bli medlem</h1>
-                <p>Anslut dig till vår idrottsgemenskap</p>
+                <h1>Medlemskap i IS Lärkan</h1>
+                <p>Bli en del av vår gemenskap</p>
             </div>
         </section>
 
@@ -93,7 +169,7 @@
             </div>
         </section>
 
-        <section class="membership-form">
+        <section class="join-form-section content-section">
             <div class="container">
                 <div class="form-wrapper">
                     <div class="form-intro">
@@ -149,6 +225,49 @@
                     
                     <div class="form-footer">
                         <p>Har du frågor? Kontakta oss på <a href="mailto:idrottssallskapetlarkan@gmail.com">idrottssallskapetlarkan@gmail.com</a></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <div class="career-path">
+                    <h2>Karriärspår</h2>
+                    <div class="career-grid">
+                        <div class="level-card">
+                            <h3>Nivå 1</h3>
+                            <p class="level-description">Börja med att delta i våra organiserade träningar och evenemang.</p>
+                            <ul class="requirements-list">
+                                <li>Delta i våra organiserade träningar och evenemang</li>
+                                <li>Tillgång till vår Strava-klubb med statistik och aktiviteter</li>
+                                <li>Möjlighet att representera IS Lärkan i tävlingar</li>
+                                <li>Inbjudningar till sociala aktiviteter</li>
+                            </ul>
+                        </div>
+                        <div class="level-card">
+                            <h3>Nivå 2</h3>
+                            <p class="level-description">Förbättra dina färdigheter och bli mer aktiv i gemenskapen.</p>
+                            <ul class="requirements-list">
+                                <li>Delta i våra organiserade träningar och evenemang</li>
+                                <li>Tillgång till vår Strava-klubb med statistik och aktiviteter</li>
+                                <li>Möjlighet att representera IS Lärkan i tävlingar</li>
+                                <li>Inbjudningar till sociala aktiviteter</li>
+                                <li>Vara med och forma föreningens framtid</li>
+                            </ul>
+                        </div>
+                        <div class="level-card">
+                            <h3>Nivå 3</h3>
+                            <p class="level-description">Bli en ledande aktivitet i gemenskapen och hjälp till att utveckla föreningen.</p>
+                            <ul class="requirements-list">
+                                <li>Delta i våra organiserade träningar och evenemang</li>
+                                <li>Tillgång till vår Strava-klubb med statistik och aktiviteter</li>
+                                <li>Möjlighet att representera IS Lärkan i tävlingar</li>
+                                <li>Inbjudningar till sociala aktiviteter</li>
+                                <li>Vara med och forma föreningens framtid</li>
+                                <li>Ledarutbildning</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
